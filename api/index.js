@@ -268,7 +268,7 @@ async function requireAuth(req) {
   const token = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
   const payload = verifyAccessToken(token);
   if (!payload) throw authError('Sesi login tidak valid atau sudah berakhir.', 401);
-  const rows = await sql`SELECT id,username,"createdAt","updatedAt" FROM "user" WHERE id=${Number(payload.sub)} LIMIT 1`;
+  const rows = await sql`SELECT id,username FROM "user" WHERE id=${Number(payload.sub)} LIMIT 1`;
   if (!rows.length) throw authError('Pengguna tidak ditemukan.', 401);
   return rows[0];
 }
@@ -570,46 +570,58 @@ module.exports = {
 };
 
 __modules["auth-login"] = function(module, exports, require) {
-const { cors, json, body, ensureInitialized } = require('./_lib');
+const { cors, json, body } = require('./_lib');
 const { sql } = require('./_db');
-const { validatePassword, passwordRuleMessage, verifyPassword, issueSession, setRefreshCookie } = require('./_auth');
+const { validatePassword, passwordRuleMessage, verifyPassword, issueSession, setRefreshCookie, ensureAuthDatabase } = require('./_auth');
 
 module.exports = async (req, res) => {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
+
   try {
-    await ensureInitialized();
-    if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
+    // IMPORTANT: login must initialize ONLY the authentication schema.
+    // It must not initialize/seed the whole hailing database because a problem
+    // in master.json or another application table should never make login 500.
+    await ensureAuthDatabase();
+
     const b = await body(req);
     const username = String(b.username || '').trim();
     const password = typeof b.password === 'string' ? b.password : '';
     if (!username || !password) return json(res, 400, { error: 'Username dan password wajib diisi.' });
     if (!validatePassword(password)) return json(res, 400, { error: passwordRuleMessage(), code: 'PASSWORD_FORMAT_INVALID' });
 
-    const rows = await sql`SELECT id,username,password,"createdAt","updatedAt" FROM "user" WHERE username=${username} LIMIT 1`;
-    if (!rows.length || !verifyPassword(password, rows[0].password)) {
+    const rows = await sql`SELECT id,username,password FROM "user" WHERE username=${username} LIMIT 1`;
+    if (!rows.length) {
       return json(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
     }
+    if (!verifyPassword(password, rows[0].password)) {
+      return json(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
+    }
+
     const user = { id: rows[0].id, username: rows[0].username };
     const session = await issueSession(user);
     setRefreshCookie(res, session.refreshToken);
     return json(res, 200, { ok: true, accessToken: session.accessToken, user });
   } catch (e) {
-    console.error('auth login error', e);
-    return json(res, e.status || 500, { error: e.message || 'Login gagal.' });
+    console.error('auth login error:', e);
+    return json(res, e.status || 500, {
+      error: e.message || 'Login gagal.',
+      code: e.code || 'AUTH_LOGIN_ERROR'
+    });
   }
 };
 
 };
 
 __modules["auth-refresh"] = function(module, exports, require) {
-const { cors, json, ensureInitialized } = require('./_lib');
-const { parseCookies, rotateRefreshSession, setRefreshCookie, clearRefreshCookie } = require('./_auth');
+const { cors, json } = require('./_lib');
+const { parseCookies, rotateRefreshSession, setRefreshCookie, clearRefreshCookie, ensureAuthDatabase } = require('./_auth');
 module.exports = async (req,res)=>{
   cors(res);
   if(req.method==='OPTIONS') return res.status(204).end();
   try{
-    await ensureInitialized();
+    await ensureAuthDatabase();
     if(req.method!=='POST') return json(res,405,{error:'Method not allowed'});
     const token=parseCookies(req).kujang_refresh_token;
     if(!token){ clearRefreshCookie(res); return json(res,401,{error:'Refresh token tidak ditemukan.'}); }
@@ -626,14 +638,14 @@ module.exports = async (req,res)=>{
 };
 
 __modules["auth-logout"] = function(module, exports, require) {
-const { cors, json, ensureInitialized } = require('./_lib');
-const { parseCookies, hashRefreshToken, clearRefreshCookie } = require('./_auth');
+const { cors, json } = require('./_lib');
+const { parseCookies, hashRefreshToken, clearRefreshCookie, ensureAuthDatabase } = require('./_auth');
 const { sql } = require('./_db');
 module.exports=async(req,res)=>{
   cors(res);
   if(req.method==='OPTIONS') return res.status(204).end();
   try{
-    await ensureInitialized();
+    await ensureAuthDatabase();
     if(req.method!=='POST') return json(res,405,{error:'Method not allowed'});
     const token=parseCookies(req).kujang_refresh_token;
     if(token){
@@ -650,13 +662,13 @@ module.exports=async(req,res)=>{
 };
 
 __modules["auth-me"] = function(module, exports, require) {
-const { cors, json, ensureInitialized } = require('./_lib');
-const { requireAuth } = require('./_auth');
+const { cors, json } = require('./_lib');
+const { requireAuth, ensureAuthDatabase } = require('./_auth');
 module.exports=async(req,res)=>{
   cors(res);
   if(req.method==='OPTIONS') return res.status(204).end();
   try{
-    await ensureInitialized();
+    await ensureAuthDatabase();
     if(req.method!=='GET') return json(res,405,{error:'Method not allowed'});
     const user=await requireAuth(req);
     return json(res,200,{ok:true,user});

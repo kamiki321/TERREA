@@ -1,4 +1,4 @@
-# KRI KUJANG Hailing Log — FINAL Vercel Single Function
+# KRI KUJANG Hailing Log — FINAL Vercel Single Function — LOGIN FIX v3.2.0
 
 This package contains exactly one API Serverless Function: `api/index.js`. The complete backend is bundled inside that file.
 
@@ -16,3 +16,7 @@ If deploying from GitHub, make sure the repository also has only `api/index.js`.
 
 ## Login fix in this build
 The previous build could return HTTP 500 during `/api/auth-login` when `AUTH_JWT_SECRET` was missing. This build uses `AUTH_JWT_SECRET` when available and otherwise derives a stable HMAC secret from the private PostgreSQL connection string. `DATABASE_URL` must still be configured. For production security, set your own random `AUTH_JWT_SECRET` (32+ characters).
+
+
+## Login v3.2.0 fix
+The login endpoint no longer calls the full application initialization/seed routine. It initializes only the authentication tables (`user` and `user_sessions`). This prevents unrelated hailing/master-data initialization errors from causing `/api/auth-login` to return HTTP 500. The login query also reads only the authentication columns it actually needs. Refresh, logout, and auth-me use the same auth-only initialization path.

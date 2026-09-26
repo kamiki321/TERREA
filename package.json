@@ -1,6 +1,6 @@
 {
   "name": "kri-kujang-hailing-vercel",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "private": true,
   "description": "KRI KUJANG Hailing Log - Vercel + Neon PostgreSQL",
   "engines": {
