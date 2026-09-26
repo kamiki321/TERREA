@@ -1,0 +1,18 @@
+{
+  "name": "kri-kujang-hailing-vercel",
+  "version": "3.1.0",
+  "private": true,
+  "description": "KRI KUJANG Hailing Log - Vercel + Neon PostgreSQL",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "latest"
+  },
+  "devDependencies": {
+    "vercel": "latest"
+  }
+}

@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>index.html</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  :root{--navy:#0b1e3d;--navy2:#122a52;--gold:#c8a24a;--gray:#6b7280;--bg:#f4f6f9;--card:#ffffff;--border:#e2e6ee;--text:#1a2338;}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#131c2e;--border:#25314a;--text:#e8ecf5;--gray:#94a3b8;}}
+  :root[data-theme="dark"]{--bg:#0b1220;--card:#131c2e;--border:#25314a;--text:#e8ecf5;--gray:#94a3b8;}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;}
+  header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:env(safe-area-inset-top,0px) 0 0 0;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .navbtn{color:#cfd8ea;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .navbtn.active,.navbtn:hover{background:var(--navy2);color:#fff;}
+  .btn{background:var(--navy);color:#fff;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--navy);}
+  .btn:hover{background:var(--navy2)}
+  .btn-gold{background:var(--gold);border-color:var(--gold);color:#2b2205}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .btn-danger{background:#b3261e;border-color:#b3261e;color:#fff}
+  input,select,textarea{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;font-size:13px;}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;}
+  th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top;}
+  th{background:var(--navy);color:#fff;position:sticky;top:0;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+  tr:nth-child(even) td{background:rgba(120,140,180,.06);}
+  .scrollx{overflow-x:auto;border:1px solid var(--border);border-radius:8px;}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .toast{position:fixed;bottom:16px;right:16px;z-index:60;display:flex;flex-direction:column;gap:8px;}
+  .toast-item{background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.25);}
+  .toast-item.warn{background:#8a5a00}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;}
+  ::-webkit-scrollbar{height:8px;width:8px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes slideIn{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes growBar{from{width:0;}}
+  .stat-card{animation:fadeInUp .5s cubic-bezier(.2,.7,.3,1) both;}
+  .card{transition:transform .18s ease, box-shadow .18s ease;}
+  .stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(11,30,61,.12);}
+  .app-anim{animation:fadeIn .28s ease;}
+  .btn,.btn-outline,.btn-gold,.btn-danger{transition:transform .12s ease, background .15s ease, box-shadow .15s ease;}
+  .btn:hover,.btn-gold:hover,.btn-danger:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.15);}
+  .btn:active,.btn-gold:active,.btn-danger:active,.btn-outline:active{transform:scale(.95);}
+  .toast-item{animation:slideIn .3s ease;}
+  tbody tr{transition:background .15s ease;animation:fadeIn .35s ease both;}
+  .navbtn{transition:background .15s ease, color .15s ease;}
+  .barfill{transition:width .8s cubic-bezier(.2,.8,.3,1);}
+  .barfill-h{transition:height .8s cubic-bezier(.2,.8,.3,1);}
+  @keyframes rowPulse{0%,100%{background:rgba(200,162,74,.28);}50%{background:rgba(200,162,74,.12);}}
+  tr.row-new td{animation:rowPulse 1.8s ease-in-out infinite;}
+
+  #authScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(145deg,#07162f,#0b1e3d 55%,#122a52);}
+  .login-card{width:min(430px,100%);background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:30px;box-shadow:0 24px 80px rgba(0,0,0,.35);}
+  .login-logo{width:58px;height:58px;border-radius:16px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:28px;margin:0 auto 14px;}
+  .login-field{position:relative;margin-top:6px;}
+  .login-field input{width:100%;padding:11px 44px 11px 12px;}
+  .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--gray);cursor:pointer;font-size:18px;padding:5px;}
+  .password-hint{font-size:11px;line-height:1.45;margin-top:6px;min-height:32px;color:var(--gray);}
+  .password-hint.invalid{color:#c0392b;}
+  .password-hint.valid{color:#17834b;}
+  .login-error{font-size:12px;color:#c0392b;margin-top:8px;display:none;}
+  .user-badge{font-size:12px;color:#dce5f5;padding:7px 9px;border:1px solid #3a4a6d;border-radius:6px;white-space:nowrap;}
+
+</style>
+</head>
+<body>
+<div id="authScreen">
+  <div class="login-card">
+    <div class="login-logo">⚓</div>
+    <div style="text-align:center;font-size:21px;font-weight:800;letter-spacing:.02em;">KRI KUJANG</div>
+    <div style="text-align:center;font-size:11px;color:var(--gray);letter-spacing:.12em;margin-top:3px;margin-bottom:24px;">HAILING LOG — LOGIN</div>
+    <form onsubmit="event.preventDefault();loginUser();">
+      <label style="font-size:12px;font-weight:700;">Username</label>
+      <div class="login-field"><input id="loginUsername" autocomplete="username" maxlength="100" placeholder="Masukkan username"></div>
+      <label style="display:block;font-size:12px;font-weight:700;margin-top:14px;">Password</label>
+      <div class="login-field">
+        <input id="loginPassword" type="password" autocomplete="current-password" maxlength="200" placeholder="Masukkan password" oninput="validateLoginPassword()">
+        <button type="button" class="password-toggle" aria-label="Tampilkan password" onclick="toggleLoginPassword()" id="passwordToggle">👁</button>
+      </div>
+      <div id="passwordHint" class="password-hint">Minimal 8 karakter, 1 uppercase, 1 angka, dan 1 karakter special.</div>
+      <div id="loginError" class="login-error"></div>
+      <button id="loginButton" class="btn" type="submit" style="width:100%;margin-top:8px;padding:11px;">Masuk</button>
+    </form>
+  </div>
+</div>
+
+<header style="display:none;" id="appHeader">
+  <div style="max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:24px;">⚓</span>
+      <div><div style="font-weight:800;font-size:16px;letter-spacing:.04em;">KRI KUJANG</div>
+      <div style="font-size:10.5px;color:#a9b6d3;letter-spacing:.08em;">HAILING LOG</div></div>
+    </div>
+    <nav style="display:flex;gap:4px;overflow-x:auto;" id="nav"></nav>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <span class="user-badge" id="userBadge">-</span>
+      <button class="btn btn-outline" style="color:#fff;border-color:#3a4a6d" onclick="logoutUser()">Logout</button>
+      <button class="btn btn-outline" style="color:#fff;border-color:#3a4a6d" onclick="document.getElementById('importFile').click()">Import</button>
+      <input id="importFile" type="file" accept=".json" style="display:none" onchange="handleImportFile(event)">
+      <button class="btn btn-gold" onclick="exportExcel()">Excel</button>
+      <button class="btn btn-gold" onclick="exportPDF()">PDF</button>
+      <button class="btn btn-outline" style="color:#fff;border-color:#3a4a6d" onclick="exportJSON()">Backup</button>
+    </div>
+  </div>
+</header>
+<main style="max-width:1200px;margin:0 auto;padding:18px 16px 60px;" id="app"></main>
+<div class="toast" id="toast"></div>
+
+<script>
+const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+const API_BASE='/api';
+const recordApiPath=(id)=>`/record?id=${encodeURIComponent(id)}`;
+const operationApiPath=(id)=>`/operation?id=${encodeURIComponent(id)}`;
+let accessToken = sessionStorage.getItem('kujang_access_token') || '';
+let currentUser = null;
+let refreshPromise = null;
+async function refreshAccessToken(){
+  if(refreshPromise) return refreshPromise;
+  refreshPromise=(async()=>{
+    const res=await fetch(API_BASE+'/auth-refresh',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'}});
+    const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(_){}
+    if(!res.ok){ accessToken=''; sessionStorage.removeItem('kujang_access_token'); throw new Error(data?.error||`HTTP ${res.status}`); }
+    accessToken=data.accessToken||'';
+    if(accessToken) sessionStorage.setItem('kujang_access_token',accessToken);
+    currentUser=data.user||currentUser;
+    updateUserBadge();
+    return accessToken;
+  })().finally(()=>{refreshPromise=null;});
+  return refreshPromise;
+}
+function updateUserBadge(){
+  const el=document.getElementById('userBadge');
+  if(el) el.textContent=currentUser?.username ? '👤 '+currentUser.username : '';
+}
+function handleAuthExpired(){
+  accessToken=''; currentUser=null; sessionStorage.removeItem('kujang_access_token');
+  const h=document.getElementById('appHeader'); if(h) h.style.display='none';
+  const a=document.getElementById('authScreen'); if(a) a.style.display='flex';
+}
+async function apiFetch(path, options={}, retry=true){
+  const isAuthPath=path.startsWith('/auth-');
+  const headers={'Content-Type':'application/json',...(options.headers||{})};
+  if(accessToken) headers.Authorization='Bearer '+accessToken;
+  const res=await fetch(API_BASE+path,{credentials:'same-origin',...options,headers});
+  const text=await res.text();
+  let data=null; try{ data=text?JSON.parse(text):null; }catch(e){ data=null; }
+  if(res.status===401 && retry && !isAuthPath){
+    try{ await refreshAccessToken(); return apiFetch(path,options,false); }
+    catch(_){ handleAuthExpired(); }
+  }
+  if(!res.ok) throw new Error(data?.error||`HTTP ${res.status}`);
+  return data;
+}
+
+
+function passwordMeetsRule(value){ return /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(value||''); }
+function validateLoginPassword(){
+  const input=document.getElementById('loginPassword'); const hint=document.getElementById('passwordHint'); const btn=document.getElementById('loginButton');
+  if(!input||!hint) return false;
+  const value=input.value||'';
+  if(!value){ hint.textContent='Minimal 8 karakter, 1 uppercase, 1 angka, dan 1 karakter special.'; hint.className='password-hint'; input.style.borderColor=''; if(btn) btn.disabled=false; return false; }
+  const ok=passwordMeetsRule(value);
+  hint.textContent=ok?'Format password valid.':'Format salah: minimal 8 karakter, 1 uppercase, 1 angka, dan 1 karakter special.';
+  hint.className='password-hint '+(ok?'valid':'invalid'); input.style.borderColor=ok?'#17834b':'#c0392b';
+  if(btn) btn.disabled=false;
+  return ok;
+}
+function toggleLoginPassword(){
+  const input=document.getElementById('loginPassword'); const btn=document.getElementById('passwordToggle'); if(!input) return;
+  input.type=input.type==='password'?'text':'password'; if(btn) btn.textContent=input.type==='password'?'👁':'🙈';
+}
+async function loginUser(){
+  const username=document.getElementById('loginUsername')?.value.trim()||''; const password=document.getElementById('loginPassword')?.value||''; const err=document.getElementById('loginError'); const btn=document.getElementById('loginButton');
+  if(err){err.style.display='none';err.textContent='';}
+  if(!username){ if(err){err.textContent='Username wajib diisi.';err.style.display='block';} return; }
+  if(!validateLoginPassword()) return;
+  if(btn){btn.disabled=true;btn.textContent='Memproses...';}
+  try{
+    const res=await fetch(API_BASE+'/auth-login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(_){}
+    if(!res.ok) throw new Error(data?.error||`HTTP ${res.status}`);
+    accessToken=data.accessToken; currentUser=data.user; sessionStorage.setItem('kujang_access_token',accessToken);
+    const a=document.getElementById('authScreen'); const h=document.getElementById('appHeader'); if(a) a.style.display='none'; if(h) h.style.display='block';
+    updateUserBadge();
+    await bootstrapData();
+    showResultDialog('LOGIN BERHASIL','SELAMAT DATANG, '+currentUser.username,true);
+  }catch(e){
+    if(err){err.textContent='Username atau password salah.';err.style.display='block';}
+    showResultDialog('Login gagal','Password atau username salah',false);
+  }finally{ if(btn){btn.disabled=false;btn.textContent='Masuk';} }
+}
+async function logoutUser(){
+  try{ await fetch(API_BASE+'/auth-logout',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',...(accessToken?{Authorization:'Bearer '+accessToken}:{})}}); }catch(_){}
+  accessToken=''; currentUser=null; sessionStorage.removeItem('kujang_access_token');
+  const h=document.getElementById('appHeader'); if(h) h.style.display='none';
+  const a=document.getElementById('authScreen'); if(a) a.style.display='flex';
+  const u=document.getElementById('loginUsername'); const p=document.getElementById('loginPassword'); if(u) u.value=''; if(p) p.value=''; validateLoginPassword();
+  showResultDialog('Logout berhasil','Session dan refresh token telah dihapus.',true);
+}
+async function startApp(){
+  try{
+    await refreshAccessToken();
+    const me=await apiFetch('/auth-me',{},false);
+    currentUser=me.user; updateUserBadge();
+    document.getElementById('authScreen').style.display='none'; document.getElementById('appHeader').style.display='block';
+    await bootstrapData();
+  }catch(_){
+    handleAuthExpired();
+  }
+}
+
+// ---------- USER FEEDBACK ----------
+function toast(message,type='ok'){
+  const el=document.getElementById('toast');
+  if(!el) return;
+  el.textContent=message;
+  el.className='toast '+(type==='warn'?'warn':'');
+  el.style.display='block';
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>{el.style.display='';},3200);
+}
+function showResultDialog(title,message,success=true){
+  const old=document.getElementById('resultDialog');
+  if(old) old.remove();
+  const el=document.createElement('div');
+  el.id='resultDialog';
+  el.innerHTML=`<div class="modal-bg" style="z-index:9999;"><div class="card" style="max-width:440px;width:calc(100% - 32px);padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28);">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:${success?'#e9f7ef':'#fdecec'};color:${success?'#17834b':'#c0392b'};font-size:20px;font-weight:900;">${success?'✓':'×'}</div>
+      <div style="flex:1;"><div style="font-size:17px;font-weight:800;margin-bottom:6px;">${title}</div><div style="font-size:13px;color:var(--gray);line-height:1.55;white-space:pre-wrap;">${message}</div></div>
+    </div>
+    <div style="text-align:right;margin-top:18px;"><button class="btn" onclick="document.getElementById('resultDialog')?.remove()">OK</button></div>
+  </div></div>`;
+  document.body.appendChild(el);
+}
+function showCrudSuccess(message){ toast('✓ '+message); showResultDialog('Berhasil',message,true); }
+function showCrudError(action,error){ const msg=action+' gagal.\n'+(error?.message||'Terjadi kesalahan pada server/database.'); toast('⚠ '+msg,'warn'); showResultDialog('Gagal',msg,false); }
+let records=[]; let opsList=[]; let selectedOpsId=''; let page='dashboard'; let editingId=null; let viewingId=null; let deletingId=null; let highlightId=null;
+let addingOps=false; let deletingOpsId=null; let pendingImportData=null; let nominalTargetId=null;
+let manageOpsOpen=false; let opsSearchQuery=''; let columnPickerOpen=false; let selectedIds=new Set(); let bulkDeleteConfirm=false; let dashboardPendingSearch='';
+const COLS=['datetime','no','posisi','nama','tonase','tujuan','muatan','abk','captain','hpcaptain','owner','hpowner','pt','transfer','nominal'];
+const COL_LABELS={datetime:'Date/Time',no:'No',posisi:'Posisi',nama:'Nama',tonase:'Tonase',tujuan:'Tujuan',muatan:'Muatan',abk:'ABK',captain:'Captain',hpcaptain:'HP Captain',owner:'Owner',hpowner:'HP Owner',pt:'PT',transfer:'Transfer',nominal:'Nominal'};
+let visibleColumns=[...COLS];
+const COL_VALUE={
+  datetime:(r,i)=>formatDateTime(r), no:(r,i)=>r.no??(i+1), posisi:(r,i)=>r.posisi||'-', nama:(r,i)=>formatVesselNames(r),
+  tonase:(r,i)=>formatVesselTonnage(r), tujuan:(r,i)=>r.destination||'-', muatan:(r,i)=>r.cargo||'-', abk:(r,i)=>r.crewCount??'-',
+  captain:(r,i)=>r.captain||'-', hpcaptain:(r,i)=>r.captainPhone||'-', owner:(r,i)=>r.owner||'-', hpowner:(r,i)=>r.ownerPhone||'-',
+  pt:(r,i)=>r.company||'-', transfer:(r,i)=>(r.nominal!=null&&r.nominal!=='')?'Sudah Transfer':'Belum Transfer', nominal:(r,i)=>formatRupiah(r.nominal)
+};
+let filters={q:'',dest:'',cargo:'',type:'',range:'all',opsId:''};
+let sortKey='no', sortDir='asc';
+
+async function loadOps(){
+  try { opsList=await apiFetch('/operations'); }
+  catch(e){ opsList=[]; toast('⚠ Gagal memuat operasi dari database.','warn'); }
+}
+async function load(){
+  try { records=await apiFetch('/records'); }
+  catch(e){ records=[]; toast('⚠ Gagal memuat data dari database.','warn'); }
+}
+function ensureNumbering(){ records.sort((a,b)=>(a.no||0)-(b.no||0)); }
+async function bootstrapData(){
+  await Promise.all([load(),loadOps()]);
+  ensureNumbering();
+  renderNav(); renderApp();
+}
+async function confirmAddOps(){
+  const input=document.getElementById('newOpsName');
+  const name=input?input.value.trim():'';
+  if(!name){ input?.focus(); return; }
+  try{
+    const o=await apiFetch('/operations',{method:'POST',body:JSON.stringify({name})});
+    opsList.push(o); selectedOpsId=o.id; addingOps=false;
+    renderModal(); renderApp(); showCrudSuccess('Operasi berhasil ditambahkan ke database.');
+  }catch(e){ showCrudError('Tambah operasi',e); }
+}
+function openAddOps(){ addingOps=true; renderModal(); }
+function openDeleteOps(id){ deletingOpsId=id; renderModal(); }
+async function confirmDeleteOps(id){
+  try{
+    await apiFetch(operationApiPath(id),{method:'DELETE'});
+    opsList=opsList.filter(x=>x.id!==id);
+    if(selectedOpsId===id) selectedOpsId='';
+    if(filters.opsId===id) filters.opsId='';
+    deletingOpsId=null;
+    await load();
+    renderModal(); renderApp();
+    showCrudSuccess('Operasi berhasil dihapus dari database.');
+  }catch(e){ showCrudError('Hapus operasi',e); }
+}
+// ---------- PARSER ----------
+function normPhone(s){ return (s||'').replace(/[^0-9+]/g,'').trim(); }
+function grabAfter(lines,i){ let out=[]; for(let j=i+1;j<lines.length;j++){ const l=lines[j].trim(); if(!l) break; if(/^(nama|kapal|tonase|gt|tujuan|muatan|abk|capt|captain|nahkoda|hp|no hp|telepon|phone|owner|pengurus|pemilik|pt|perusahaan|company|posisi|position|lokasi|location)\s*:/i.test(l)) break; out.push(l); } return out; }
+function matchLabel(line,labels){ const m=line.match(/^([^:]+):\s*(.*)$/); if(!m) return null; const key=m[1].trim().toLowerCase(); for(const lab of labels){ if(key===lab) return m[2].trim(); } return null; }
+
+function parseHailing(raw){
+  const lines = raw.split('\n');
+  let vessels=[]; let gts=[]; let dest='',cargo='',abk='',capt='',captPhone='',owner='',ownerPhone='',pt='',posisi='';
+  const warnings=[];
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i].trim(); if(!line) continue;
+    const lower=line.toLowerCase();
+    if(/^(nama|kapal)\s*:?\s*$/i.test(line) || /^(nama|kapal)\s*:/.test(lower)){
+      const inline = line.replace(/^(nama|kapal)\s*:/i,'').trim();
+      let names = inline ? [inline] : grabAfter(lines,i);
+      names.forEach(n=>{ if(n) vessels.push({id:uid(),name:n.trim()}); });
+      continue;
+    }
+    if(/^(tonase|gt)\s*:?\s*$/i.test(line) || /^(tonase|gt)\s*:/.test(lower)){
+      const inline = line.replace(/^(tonase|gt)\s*:/i,'').trim();
+      let vals = inline ? [inline] : grabAfter(lines,i);
+      vals.forEach(v=>{ const num=(v.match(/\d[\d.,]*/)||[])[0]; gts.push(num?num.replace(/,/g,''):null); });
+      continue;
+    }
+    let v;
+    if((v=matchLabel(line,['tujuan']))!==null) dest=v;
+    else if((v=matchLabel(line,['muatan']))!==null) cargo=v;
+    else if((v=matchLabel(line,['abk']))!==null) abk=v;
+    else if((v=matchLabel(line,['capt','captain','nahkoda']))!==null) capt=v;
+    else if((v=matchLabel(line,['hp','no hp','telepon','phone']))!==null){ if(!captPhone) captPhone=normPhone(v); else if(!ownerPhone) ownerPhone=normPhone(v); }
+    else if((v=matchLabel(line,['owner','owner/operasional','pengurus','pemilik']))!==null) owner=v;
+    else if((v=matchLabel(line,['pt','perusahaan','company']))!==null) pt=v;
+    else if((v=matchLabel(line,['posisi','position','lokasi','location']))!==null) posisi=v;
+  }
+  // pair gt to vessels
+  vessels.forEach((vessel,idx)=>{ vessel.gt = gts[idx]!=null?gts[idx]:undefined; const t=vessel.name.match(/^(TB|TK|KM|MV|TUG|BARGE)\b/i); vessel.type=t?t[1].toUpperCase():undefined; });
+  if(gts.length && gts.length!==vessels.length){
+    warnings.push(`⚠ Data Tonase tidak sesuai dengan jumlah kapal. ${vessels.length} kapal ditemukan, tetapi ${gts.length} nilai GT.`);
+  }
+  if(vessels.length===0) warnings.push('⚠ Nama kapal tidak ditemukan pada data yang dipaste.');
+  const confidence = Math.max(0, 100 - warnings.length*25 - (vessels.length===0?40:0));
+  return { vessels, destination:dest, cargo, crewCount: abk?parseInt(abk):undefined, captain:capt||undefined, captainPhone:captPhone||undefined, owner:owner||undefined, ownerPhone:ownerPhone||undefined, company:pt||undefined, posisi:posisi||'-', warnings, parserConfidence:confidence, rawInput:raw };
+}
+const HEADER_ALIASES={
+  datetime:['date/time','tanggal/waktu','tanggal','date','waktu','time'],
+  posisi:['posisi','position','lokasi','location'],
+  nama:['nama','kapal','nama kapal','vessel','vessel name','vessels'],
+  tonase:['tonase','gt','tonnage'],
+  tujuan:['tujuan','destination'],
+  muatan:['muatan','cargo'],
+  abk:['abk','crew','crewcount','crew count'],
+  captain:['captain','capt','nahkoda'],
+  hpcaptain:['hp captain','hp capt','captain phone','no hp captain','telepon captain'],
+  owner:['owner','pemilik','pengurus','owner/operasional'],
+  hpowner:['hp owner','owner phone','no hp owner','hp pengurus'],
+  pt:['pt','company','perusahaan'],
+  nominal:['nominal','amount','jumlah']
+};
+function getField(rowObj, aliases){
+  for(const k of Object.keys(rowObj)){
+    if(aliases.includes(k.trim().toLowerCase())) return rowObj[k];
+  }
+  return undefined;
+}
+function parseImportDateTime(val){
+  if(val===null||val===undefined||val==='') return null;
+  if(val instanceof Date && !isNaN(val)){
+    const y=val.getFullYear(), m=String(val.getMonth()+1).padStart(2,'0'), d=String(val.getDate()).padStart(2,'0');
+    const hh=String(val.getHours()).padStart(2,'0'), mm=String(val.getMinutes()).padStart(2,'0');
+    return { date:y+'-'+m+'-'+d, time:hh+':'+mm };
+  }
+  const s=String(val).trim();
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+  if(m){
+    const dd=m[1],mo=m[2],yy=m[3]; let hh=parseInt(m[4],10); const mi=m[5]; const ampm=m[7];
+    if(ampm){ const isPM=/pm/i.test(ampm); if(isPM&&hh<12) hh+=12; if(!isPM&&hh===12) hh=0; }
+    return { date:yy+'-'+mo.padStart(2,'0')+'-'+dd.padStart(2,'0'), time:String(hh).padStart(2,'0')+':'+mi };
+  }
+  const parsed=new Date(s);
+  if(!isNaN(parsed)){
+    const y=parsed.getFullYear(), mo=String(parsed.getMonth()+1).padStart(2,'0'), d=String(parsed.getDate()).padStart(2,'0');
+    const hh=String(parsed.getHours()).padStart(2,'0'), mi=String(parsed.getMinutes()).padStart(2,'0');
+    return { date:y+'-'+mo+'-'+d, time:hh+':'+mi };
+  }
+  return null;
+}
+function parseExcelRow(rowObj){
+  const rawNama=getField(rowObj,HEADER_ALIASES.nama);
+  const rawTonase=getField(rowObj,HEADER_ALIASES.tonase);
+  const namesArr = rawNama? String(rawNama).split(';').map(s=>s.trim()).filter(Boolean) : [];
+  const gtArr = rawTonase? String(rawTonase).split(';').map(s=>{ const mm=String(s).match(/\d[\d.,]*/); return mm? mm[0].replace(/,/g,''):null; }) : [];
+  const vessels = namesArr.map((name,idx)=>{ const t=name.match(/^(TB|TK|KM|MV|TUG|BARGE)\b/i); return { id:uid(), name, gt: gtArr[idx]!=null?gtArr[idx]:undefined, type: t?t[1].toUpperCase():undefined }; });
+  const abkRaw=getField(rowObj,HEADER_ALIASES.abk);
+  const nominalRaw=getField(rowObj,HEADER_ALIASES.nominal);
+  let nominal;
+  if(nominalRaw!==undefined && nominalRaw!==''){ const digits=String(nominalRaw).replace(/[^\d]/g,''); nominal=digits?parseInt(digits,10):undefined; }
+  const dt=parseImportDateTime(getField(rowObj,HEADER_ALIASES.datetime));
+  const posisi=getField(rowObj,HEADER_ALIASES.posisi), dest=getField(rowObj,HEADER_ALIASES.tujuan), cargo=getField(rowObj,HEADER_ALIASES.muatan);
+  const capt=getField(rowObj,HEADER_ALIASES.captain), captPhone=getField(rowObj,HEADER_ALIASES.hpcaptain);
+  const owner=getField(rowObj,HEADER_ALIASES.owner), ownerPhone=getField(rowObj,HEADER_ALIASES.hpowner), pt=getField(rowObj,HEADER_ALIASES.pt);
+  return {
+    vessels,
+    posisi: posisi?String(posisi).trim():'-',
+    destination: dest?String(dest).trim():'',
+    cargo: cargo?String(cargo).trim():'',
+    crewCount: (abkRaw!==undefined && abkRaw!=='') ? parseInt(abkRaw) : undefined,
+    captain: capt?String(capt).trim():undefined,
+    captainPhone: captPhone?normPhone(String(captPhone)):undefined,
+    owner: owner?String(owner).trim():undefined,
+    ownerPhone: ownerPhone?normPhone(String(ownerPhone)):undefined,
+    company: pt?String(pt).trim():undefined,
+    nominal,
+    date: dt?dt.date:undefined,
+    time: dt?dt.time:undefined,
+    rawInput: JSON.stringify(rowObj)
+  };
+}
+async function handleExcelImportFile(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});
+    if(!rows.length){ toast('⚠ File tidak berisi data.','warn'); return; }
+    const opsObj=opsList.find(o=>o.id===selectedOpsId);
+    let count=0, skipped=0, lastId=null;
+    for(const rowObj of rows){
+      const parsed=parseExcelRow(rowObj);
+      if(parsed.vessels.length===0){ skipped++; continue; }
+      lastId=await upsertRecord({ ...parsed, opsId: opsObj?opsObj.id:undefined, opsName: opsObj?opsObj.name:undefined });
+      count++;
+    }
+    if(count>0){ highlightId=lastId; toast('✓ '+count+' data berhasil diimpor dari file'+(skipped?(', '+skipped+' baris dilewati (Nama kosong)'):'')+'.'); setPage('data'); }
+    else toast('⚠ Tidak ada baris valid (kolom Nama kosong) pada file.','warn');
+  }catch(e){ toast('⚠ Gagal membaca file. Pastikan format Excel/CSV sesuai.','warn'); }
+  finally{ ev.target.value=''; }
+}
+function escapeHtml(value){ return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }
+function formatVesselNames(r){ return (r.vessels||[]).map(v=>v.name).join('; ')||'-'; }
+function formatVesselTonnage(r){ return (r.vessels||[]).map(v=> v.gt!=null? 'GT. '+v.gt : 'GT. -').join('; ')||'-'; }
+function totalGT(r){ return (r.vessels||[]).reduce((s,v)=>s+(parseFloat(v.gt)||0),0); }
+function formatRupiah(v){ if(v===null||v===undefined||v==='') return '-'; const n=Math.round(Number(v)||0); return 'Rp ' + n.toLocaleString('id-ID') + ',00'; }
+function formatDateTime(r){
+  if(!r.date) return '-';
+  const parts=r.date.split('-'); if(parts.length!==3) return '-';
+  const [y,m,d]=parts;
+  let timeStr='00:00:00 AM';
+  if(r.time){
+    const tp=r.time.split(':'); let hh=parseInt(tp[0],10)||0; const mm=parseInt(tp[1],10)||0;
+    const ampm = hh>=12 ? 'PM':'AM'; let hh12=hh%12; if(hh12===0) hh12=12;
+    timeStr = String(hh12).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':00 '+ampm;
+  }
+  return d+'/'+m+'/'+y+' '+timeStr;
+}
+
+// ---------- CRUD / DATABASE ----------
+async function upsertRecord(data,id){
+  try{
+    const saved=await apiFetch(id?recordApiPath(id):'/records',{
+      method:id?'PUT':'POST', body:JSON.stringify({...data,...(id?{id}: {})})
+    });
+    const idx=records.findIndex(r=>r.id===saved.id);
+    if(idx>=0) records[idx]=saved; else records.push(saved);
+    return saved.id;
+  }catch(e){
+    toast('⚠ Gagal menyimpan data: '+e.message,'warn');
+    throw e;
+  }
+}
+async function refreshData(){
+  await Promise.all([load(),loadOps()]);
+  ensureNumbering(); highlightId=null; renderApp(); toast('✓ Data diperbarui.');
+}
+async function deleteRecord(id){
+  await apiFetch(recordApiPath(id),{method:'DELETE'});
+  records=records.filter(r=>r.id!==id); selectedIds.delete(id);
+}
+// ---------- RENDER ----------
+const NAV=[['dashboard','Dashboard'],['data','Data Hailing'],['input','Input Hailing'],['stats','Statistics']];
+function renderNav(){ document.getElementById('nav').innerHTML = NAV.map(([k,l])=>`<div class="navbtn ${page===k?'active':''}" onclick="setPage('${k}')">${l}</div>`).join(''); }
+function setPage(p){ page=p; renderNav(); renderApp(); }
+
+function renderApp(){
+  const app=document.getElementById('app');
+  app.classList.remove('app-anim'); void app.offsetWidth; app.classList.add('app-anim');
+  if(page==='dashboard') app.innerHTML = renderDashboard();
+  else if(page==='data') app.innerHTML = renderData();
+  else if(page==='input') app.innerHTML = renderInput();
+  else if(page==='stats') app.innerHTML = renderStats();
+  attachPageHandlers();
+  animateCounters();
+  requestAnimationFrame(()=>{ document.querySelectorAll('.barfill').forEach(el=>{ el.style.width=el.dataset.w; }); document.querySelectorAll('.barfill-h').forEach(el=>{ el.style.height=el.dataset.h; });
+    const hl=document.getElementById('rowHighlight'); if(hl) hl.scrollIntoView({behavior:'smooth', block:'center'}); });
+}
+
+function statCard(label,val,sub,idx=0,format,color){
+  const isNum = typeof val==='number';
+  const initial = isNum ? (format==='rupiah' ? formatRupiah(0) : '0') : val;
+  const colorStyle = color ? `color:${color};` : '';
+  const sizeStyle = format==='rupiah' ? 'font-size:19px;' : 'font-size:26px;';
+  return `<div class="card stat-card" style="padding:16px;animation-delay:${idx*90}ms;">
+    <div style="font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;font-weight:700;">${label}</div>
+    <div style="${sizeStyle}font-weight:800;margin-top:4px;${colorStyle}" ${isNum?`class="counter" data-target="${val}"${format?` data-format="${format}"`:''}`:''}>${initial}</div>
+    ${sub?`<div style="font-size:11.5px;color:var(--gray);margin-top:2px;">${sub}</div>`:''}
+  </div>`;
+}
+function animateCounters(){
+  document.querySelectorAll('.counter').forEach(el=>{
+    const target=parseFloat(el.dataset.target)||0;
+    const format=el.dataset.format;
+    const duration=650; const t0=performance.now();
+    function step(t){ const p=Math.min((t-t0)/duration,1); const eased=1-Math.pow(1-p,3); const val=Math.round(eased*target);
+      el.textContent = format==='rupiah' ? formatRupiah(val) : val.toLocaleString('id-ID');
+      if(p<1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  });
+}
+
+function renderDashboard(){
+  const totalHailing=records.length;
+  const todayStr=new Date().toISOString().slice(0,10);
+  const todayCount=records.filter(r=>r.date===todayStr || (r.createdAt||'').slice(0,10)===todayStr).length;
+  const sudahTransfer=records.filter(r=>r.nominal!=null && r.nominal!=='').length;
+  const belumTransfer=totalHailing-sudahTransfer;
+  const totalNominal=records.reduce((s,r)=> s+(r.nominal!=null?Number(r.nominal)||0:0), 0);
+  if(records.length===0){
+    return `<div class="card app-anim" style="padding:60px 20px;text-align:center;">
+      <div style="font-size:15px;font-weight:700;">Belum ada data hailing</div>
+      <div style="font-size:13px;color:var(--gray);margin:8px 0 16px;">Mulai dengan memasukkan data hailing kapal.</div>
+      <button class="btn" onclick="setPage('input')">+ Input Hailing</button>
+    </div>`;
+  }
+  return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+    <div style="font-weight:800;font-size:16px;">Dashboard</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" onclick="refreshData()">🔄 Refresh</button>
+      <button class="btn" onclick="setPage('input')">+ Input Hailing</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px;">
+    ${statCard('Total Hailing',totalHailing,null,0)}
+    ${statCard('Hailing Hari Ini',todayCount,null,1)}
+    ${statCard('Sudah Transfer',sudahTransfer,null,2,null,'#16a34a')}
+    ${statCard('Belum Transfer',belumTransfer,null,3,null,'#dc2626')}
+    ${statCard('Total Nominal Diterima',totalNominal,null,4,'rupiah')}
+  </div>
+  <div class="card stat-card" style="padding:14px;animation-delay:450ms;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+      <div>
+        <div style="font-weight:800;font-size:14px;">Hailing Belum Transfer</div>
+        <div style="font-size:11.5px;color:var(--gray);margin-top:3px;">Menampilkan seluruh data hailing yang berstatus <b>Belum Transfer</b> dan belum memiliki nominal.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:260px;max-width:420px;">
+        <input id="dashboardPendingSearch" class="input" value="${escapeHtml(dashboardPendingSearch)}" placeholder="🔎 Cari nama kapal, owner, PT, tujuan..." oninput="dashboardPendingSearch=this.value;renderDashboardPendingTable()" style="width:100%;" autocomplete="off">
+      </div>
+    </div>
+    <div id="dashboardPendingTable">${renderDashboardPendingTableHTML()}</div>
+  </div>`;
+}
+
+function dashboardPendingRecords(){
+  const q=(dashboardPendingSearch||'').trim().toLowerCase();
+  let list=records.filter(r=>r.nominal===null || r.nominal===undefined || r.nominal==='');
+  if(q){
+    list=list.filter(r=>[
+      r.no, formatDateTime(r), r.date, r.time, r.posisi, formatVesselNames(r), formatVesselTonnage(r),
+      r.destination, r.cargo, r.crewCount, r.captain, r.captainPhone, r.owner, r.ownerPhone, r.company,
+      r.opsName, 'Belum Transfer'
+    ].join(' ').toLowerCase().includes(q));
+  }
+  return list.sort((a,b)=>(Number(a.no)||0)-(Number(b.no)||0));
+}
+
+function renderDashboardPendingTableHTML(){
+  const list=dashboardPendingRecords();
+  if(list.length===0){
+    return `<div style="padding:28px;text-align:center;color:var(--gray);font-size:13px;">${dashboardPendingSearch.trim()?'Tidak ada data yang cocok dengan pencarian.':'Tidak ada data hailing yang Belum Transfer.'}</div>`;
+  }
+  const rows=list.map((r,i)=>`<tr>
+    <td>${r.no??(i+1)}</td>
+    <td style="white-space:nowrap;">${formatDateTime(r)}</td>
+    <td>${r.posisi||'-'}</td>
+    <td>${formatVesselNames(r)}</td>
+    <td>${formatVesselTonnage(r)}</td>
+    <td>${r.destination||'-'}</td>
+    <td>${r.cargo||'-'}</td>
+    <td>${r.crewCount??'-'}</td>
+    <td>${r.captain||'-'}</td>
+    <td>${r.owner||'-'}</td>
+    <td>${r.company||'-'}</td>
+    <td><span class="badge" style="background:#dc262622;color:#dc2626;">Belum Transfer</span></td>
+    <td>-</td>
+  </tr>`).join('');
+  return `<div style="display:flex;justify-content:flex-end;margin-bottom:8px;font-size:11.5px;color:var(--gray);">${list.length} data ditemukan</div>
+    <div class="scrollx"><table><thead><tr>
+      <th>No</th><th>Date/Time</th><th>Posisi</th><th>Nama</th><th>Tonase</th><th>Tujuan</th><th>Muatan</th><th>ABK</th><th>Captain</th><th>Owner</th><th>PT</th><th>Transfer</th><th>Nominal</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderDashboardPendingTable(){
+  const el=document.getElementById('dashboardPendingTable');
+  if(el) el.innerHTML=renderDashboardPendingTableHTML();
+}
+
+
+function uniqueVals(field){ return [...new Set(records.map(r=>r[field]).filter(Boolean))]; }
+function filteredRecords(){
+  let list=[...records];
+  const q=filters.q.trim().toLowerCase();
+  if(q){ list=list.filter(r=> [formatVesselNames(r),r.posisi,r.destination,r.cargo,r.captain,r.captainPhone,r.owner,r.ownerPhone,r.company,formatVesselTonnage(r),r.opsName].join(' ').toLowerCase().includes(q)); }
+  if(filters.opsId) list=list.filter(r=>r.opsId===filters.opsId);
+  if(filters.dest) list=list.filter(r=>r.destination===filters.dest);
+  if(filters.cargo) list=list.filter(r=>r.cargo===filters.cargo);
+  if(filters.type) list=list.filter(r=>(r.vessels||[]).some(v=>v.type===filters.type));
+  if(filters.range!=='all'){
+    const now=new Date();
+    list=list.filter(r=>{ const d=new Date(r.date||r.createdAt); if(filters.range==='today') return d.toDateString()===now.toDateString(); if(filters.range==='week'){ const wk=new Date(now); wk.setDate(now.getDate()-7); return d>=wk; } if(filters.range==='month') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); return true; });
+  }
+  list.sort((a,b)=>{ let av,bv; if(sortKey==='vesselName'){av=formatVesselNames(a);bv=formatVesselNames(b);} else if(sortKey==='gt'){av=totalGT(a);bv=totalGT(b);} else {av=a[sortKey];bv=b[sortKey];}
+    if(av==null) av=''; if(bv==null) bv='';
+    if(typeof av==='number'&&typeof bv==='number') return sortDir==='asc'?av-bv:bv-av;
+    return sortDir==='asc'? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av)); });
+  return list;
+}
+
+function renderTable(list,full=true){
+  if(list.length===0) return `<div style="padding:24px;text-align:center;color:var(--gray);font-size:13px;">Tidak ada data ditemukan.</div>`;
+  const cols=COLS.filter(c=>visibleColumns.includes(c));
+  const allChecked = full && list.length>0 && list.every(r=>selectedIds.has(r.id));
+  const thead=(full?`<th><input type="checkbox" ${allChecked?'checked':''} onchange="toggleSelectAll(this.checked)"></th>`:'')+cols.map(c=>`<th>${COL_LABELS[c]}</th>`).join('')+(full?'<th>Action</th>':'');
+  const body=list.map((r,i)=>{
+    const isNew=r.id===highlightId; const hasNominal=r.nominal!=null && r.nominal!=='';
+    const cellHTML={
+      datetime:`<td style="white-space:nowrap;">${formatDateTime(r)}</td>`,
+      no:`<td>${r.no??(i+1)}${isNew?' <span class="badge" style="background:var(--gold);color:#2b2205;">BARU</span>':''}</td>`,
+      posisi:`<td>${r.posisi||'-'}</td>`, nama:`<td>${formatVesselNames(r)}</td>`, tonase:`<td>${formatVesselTonnage(r)}</td>`,
+      tujuan:`<td>${r.destination||'-'}</td>`, muatan:`<td>${r.cargo||'-'}</td>`, abk:`<td>${r.crewCount??'-'}</td>`,
+      captain:`<td>${r.captain||'-'}</td>`, hpcaptain:`<td>${r.captainPhone||'-'}</td>`, owner:`<td>${r.owner||'-'}</td>`,
+      hpowner:`<td>${r.ownerPhone||'-'}</td>`, pt:`<td>${r.company||'-'}</td>`,
+      transfer:`<td>${hasNominal?'<span class="badge" style="background:#16a34a22;color:#16a34a;">Sudah Transfer</span>':'<span class="badge" style="background:#dc262622;color:#dc2626;">Belum Transfer</span>'}</td>`,
+      nominal:`<td>${formatRupiah(r.nominal)}</td>`
+    };
+    const checkTd=full?`<td><input type="checkbox" ${selectedIds.has(r.id)?'checked':''} onchange="toggleSelectRow('${r.id}',this.checked)"></td>`:'';
+    const tds=cols.map(c=>cellHTML[c]).join('');
+    const actionTd=full?`<td style="white-space:nowrap;"><button class="btn btn-outline" style="padding:3px 8px;font-size:11px;" onclick="openView('${r.id}')">View</button>
+    <button class="btn btn-outline" style="padding:3px 8px;font-size:11px;" onclick="openEdit('${r.id}')">Edit</button>
+    <button class="btn btn-outline" style="padding:3px 8px;font-size:11px;" onclick="openNominal('${r.id}')">${hasNominal?'Edit Nominal':'Add Nominal'}</button>
+    <button class="btn btn-danger" style="padding:3px 8px;font-size:11px;" onclick="openDelete('${r.id}')">Delete</button></td>`:'';
+    return `<tr class="${isNew?'row-new':''}" ${isNew?'id="rowHighlight"':''}>${checkTd}${tds}${actionTd}</tr>`;
+  }).join('');
+  return `<div class="scrollx"><table><thead><tr>${thead}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function toggleSelectRow(id,checked){ if(checked) selectedIds.add(id); else selectedIds.delete(id); renderApp(); }
+function toggleSelectAll(checked){ const list=filteredRecords(); list.forEach(r=>{ if(checked) selectedIds.add(r.id); else selectedIds.delete(r.id); }); renderApp(); }
+function clearSelection(){ selectedIds.clear(); renderApp(); }
+function openBulkDelete(){ if(selectedIds.size===0) return; bulkDeleteConfirm=true; renderModal(); }
+async function confirmBulkDelete(){
+  const ids=[...selectedIds]; const n=ids.length;
+  if(!n){ return; }
+  try{
+    const result=await apiFetch('/records/bulk-delete',{method:'POST',body:JSON.stringify({ids})});
+    records=records.filter(r=>!selectedIds.has(r.id));
+    selectedIds.clear(); bulkDeleteConfirm=false;
+    renderModal(); renderApp();
+    showCrudSuccess((result?.deleted??n)+' data hailing berhasil dihapus dari database.');
+  }catch(e){ showCrudError('Hapus data terpilih',e); }
+}
+function bulkDeleteModalHTML(){
+  const n=selectedIds.size;
+  const names=records.filter(r=>selectedIds.has(r.id)).slice(0,5).map(r=>formatVesselNames(r));
+  return `<div class="modal-bg" onclick="if(event.target===this){bulkDeleteConfirm=false;renderModal();}"><div class="card" style="max-width:440px;width:100%;padding:20px;">
+  <div style="font-weight:800;margin-bottom:8px;">Hapus ${n} data hailing terpilih?</div>
+  <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">${names.map(n=>'• '+n).join('<br>')}${records.filter(r=>selectedIds.has(r.id)).length>5?'<br>… dan lainnya':''}</div>
+  <div style="text-align:right;display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn btn-outline" onclick="bulkDeleteConfirm=false;renderModal()">Batal</button>
+    <button class="btn btn-danger" onclick="confirmBulkDelete()">Hapus ${n} Data</button>
+  </div></div></div>`;
+}
+
+function renderData(){
+  const dests=uniqueVals('destination'), cargos=uniqueVals('cargo');
+  const list=filteredRecords();
+  return `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center;justify-content:space-between;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div class="navbtn ${!filters.opsId?'active':''}" style="background:${!filters.opsId?'var(--navy)':'var(--card)'};color:${!filters.opsId?'#fff':'var(--text)'};border:1px solid var(--border);" onclick="filters.opsId='';renderApp()">Semua Operasi</div>
+      ${opsList.map(o=>`<div class="navbtn ${filters.opsId===o.id?'active':''}" style="background:${filters.opsId===o.id?'var(--navy)':'var(--card)'};color:${filters.opsId===o.id?'#fff':'var(--text)'};border:1px solid var(--border);" onclick="filters.opsId='${o.id}';renderApp()">${o.name}</div>`).join('')}
+    </div>
+    <button class="btn btn-outline" onclick="refreshData()">🔄 Refresh</button>
+    <button class="btn btn-outline" onclick="openManageOps()">⚙ Kelola Operasi</button>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+    <div style="font-size:12px;color:var(--gray);">Menampilkan: <b style="color:var(--text);">${opsContextLabel()}</b> (${list.length} data) — ekspor mengikuti tampilan & kolom ini.</div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-outline" style="padding:6px 12px;font-size:12px;" onclick="openColumnPicker()">🧩 Pilih Kolom</button>
+      <button class="btn btn-gold" style="padding:6px 12px;font-size:12px;" onclick="exportExcel()">Export Excel</button>
+      <button class="btn btn-gold" style="padding:6px 12px;font-size:12px;" onclick="exportPDF()">Export PDF</button>
+    </div>
+  </div>
+  ${selectedIds.size>0?`<div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:rgba(200,162,74,.1);border-color:var(--gold);">
+    <div style="font-size:13px;font-weight:700;">${selectedIds.size} data dipilih</div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-outline" style="padding:5px 10px;font-size:12px;" onclick="clearSelection()">Batalkan</button>
+      <button class="btn btn-danger" style="padding:5px 10px;font-size:12px;" onclick="openBulkDelete()">🗑 Hapus Terpilih</button>
+    </div>
+  </div>`:''}
+  <div class="card" style="padding:14px;margin-bottom:14px;">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <input id="fq" placeholder="Cari kapal, tujuan, captain, owner..." style="flex:1;min-width:200px;" value="${filters.q}" oninput="filters.q=this.value;renderApp()">
+    <select id="fdest" onchange="filters.dest=this.value;renderApp()"><option value="">Semua Tujuan</option>${dests.map(d=>`<option ${filters.dest===d?'selected':''}>${d}</option>`).join('')}</select>
+    <select id="fcargo" onchange="filters.cargo=this.value;renderApp()"><option value="">Semua Muatan</option>${cargos.map(c=>`<option ${filters.cargo===c?'selected':''}>${c}</option>`).join('')}</select>
+    <select onchange="filters.type=this.value;renderApp()"><option value="">Semua Tipe</option>${['TB','TK','KM','MV'].map(t=>`<option ${filters.type===t?'selected':''}>${t}</option>`).join('')}</select>
+    <select onchange="filters.range=this.value;renderApp()"><option value="all" ${filters.range==='all'?'selected':''}>Semua Tanggal</option><option value="today" ${filters.range==='today'?'selected':''}>Hari Ini</option><option value="week" ${filters.range==='week'?'selected':''}>Minggu Ini</option><option value="month" ${filters.range==='month'?'selected':''}>Bulan Ini</option></select>
+    <select onchange="sortKey=this.value;renderApp()">
+      <option value="no" ${sortKey==='no'?'selected':''}>Urutan Input (Lama→Baru)</option>
+      <option value="createdAt" ${sortKey==='createdAt'?'selected':''}>Urut: Terbaru</option>
+      <option value="date" ${sortKey==='date'?'selected':''}>Tanggal</option>
+      <option value="vesselName" ${sortKey==='vesselName'?'selected':''}>Nama Kapal</option>
+      <option value="gt" ${sortKey==='gt'?'selected':''}>GT</option>
+      <option value="destination" ${sortKey==='destination'?'selected':''}>Tujuan</option>
+      <option value="cargo" ${sortKey==='cargo'?'selected':''}>Muatan</option>
+      <option value="captain" ${sortKey==='captain'?'selected':''}>Captain</option>
+      <option value="company" ${sortKey==='company'?'selected':''}>Perusahaan</option>
+    </select>
+    <button class="btn btn-outline" onclick="sortDir=sortDir==='asc'?'desc':'asc';renderApp()">${sortDir==='asc'?'↑ Asc':'↓ Desc'}</button>
+  </div></div>
+  <div class="card" style="padding:10px;">${renderTable(list,true)}</div>`;
+}
+
+function renderInput(){
+  const opsObj=opsList.find(o=>o.id===selectedOpsId);
+  return `<div class="card" style="padding:18px;max-width:800px;margin:0 auto;">
+    <div style="font-weight:800;font-size:16px;margin-bottom:12px;">INPUT HAILING</div>
+    <label style="font-size:11px;color:var(--gray);font-weight:700;">JENIS OPERASI</label>
+    <div style="display:flex;gap:6px;margin:6px 0 14px;flex-wrap:wrap;">
+      <select id="opsSelect" style="flex:1;min-width:180px;" onchange="selectedOpsId=this.value">
+        <option value="">— Tanpa Operasi —</option>
+        ${opsList.map(o=>`<option value="${o.id}" ${selectedOpsId===o.id?'selected':''}>${o.name}</option>`).join('')}
+      </select>
+      <button class="btn btn-outline" onclick="openAddOps()">+ Ops Baru</button>
+      <button class="btn btn-outline" onclick="openManageOps()">⚙ Kelola Operasi</button>
+      ${opsObj?`<button class="btn btn-danger" onclick="openDeleteOps('${opsObj.id}')" title="Hapus operasi ini">Hapus Ops</button>`:''}
+    </div>
+    <textarea id="rawInput" rows="12" style="width:100%;font-family:monospace;" placeholder="Paste data hailing di sini...">${currentParsed?currentParsed.rawInput:''}</textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button class="btn" onclick="doParse()">Parse Data</button>
+      <button id="aiBtn" class="btn btn-gold" onclick="doParseAI()">🤖 Gunakan AI</button>
+      <button class="btn btn-outline" onclick="document.getElementById('rawInput').value='';document.getElementById('previewZone').innerHTML=''">Clear</button>
+    </div>
+    <div style="font-size:11px;color:var(--gray);margin-top:6px;">Tips: "Parse Data" memakai aturan tetap (cepat, gratis). "Gunakan AI" bisa membaca format bebas/tidak baku, lalu tetap tampil sebagai preview untuk diperiksa sebelum disimpan.</div>
+    <div id="previewZone" style="margin-top:16px;"></div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:18px 0;">
+    <div style="font-weight:800;font-size:14px;margin-bottom:6px;">IMPORT DARI EXCEL / CSV</div>
+    <div style="font-size:11.5px;color:var(--gray);margin-bottom:8px;">Setiap baris = satu hailing. Kolom yang dikenali (nama header bebas, tidak harus persis): Date/Time, Posisi, Nama (pisahkan beberapa kapal dengan “;”), Tonase (“;” juga), Tujuan, Muatan, ABK, Captain, HP Captain, Owner, HP Owner, PT, Nominal. Data akan masuk ke operasi yang sedang dipilih di atas.</div>
+    <input type="file" accept=".xlsx,.xls,.csv" onchange="handleExcelImportFile(event)">
+  </div>`;
+}
+
+let currentParsed=null;
+function doParse(){
+  const raw=document.getElementById('rawInput').value;
+  if(!raw.trim()){ toast('Tidak ada data untuk diparse.','warn'); return; }
+  currentParsed=parseHailing(raw);
+  document.getElementById('previewZone').innerHTML = previewHTML(currentParsed);
+}
+async function doParseAI(){
+  const raw=document.getElementById('rawInput').value;
+  if(!raw.trim()){ toast('Tidak ada data untuk diproses AI.','warn'); return; }
+  const btn=document.getElementById('aiBtn'); const oldLabel=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='🤖 Memproses...'; }
+  document.getElementById('previewZone').innerHTML = `<div class="card" style="padding:16px;font-size:13px;color:var(--gray);">🤖 AI sedang membaca data...</div>`;
+  try{
+    const sample = window.claude ? await window.claude.use('sample') : null;
+    if(!sample){ toast('⚠ Fitur AI tidak tersedia di tampilan ini.','warn'); document.getElementById('previewZone').innerHTML=''; return; }
+    const prompt = `Kamu mengubah pesan hailing kapal (format bebas, tidak baku, bisa bahasa Indonesia/Inggris campur) menjadi SATU objek JSON terstruktur. Sebuah pesan hailing bisa berisi LEBIH DARI SATU kapal — semua kapal dalam satu pesan tetap menjadi SATU objek (jangan dipecah).
+
+Balas HANYA dengan JSON valid, tanpa teks lain, tanpa markdown fence, dengan bentuk persis:
+{"vessels":[{"name":string,"gt":string|null,"type":string|null}],"destination":string|null,"cargo":string|null,"crewCount":number|null,"captain":string|null,"captainPhone":string|null,"owner":string|null,"ownerPhone":string|null,"company":string|null,"posisi":string|null}
+
+Aturan:
+- "gt" adalah teks angka tonase kapal (boleh null kalau tidak ada), jangan sertakan kata "GT".
+- "type" contoh: TB, TK, KM, MV, atau null jika tidak jelas.
+- Jangan mengarang data yang tidak ada di teks; gunakan null jika tidak disebutkan.
+- Nomor telepon: tulis apa adanya (angka saja, boleh diawali 0 atau +).
+
+Teks hailing:
+"""
+${raw}
+"""`;
+    const data = await sample.json(prompt, { modelTier:'quick', cache:false });
+    if(!data || typeof data!=='object') throw {code:'invalid_json'};
+    const vesselsIn = Array.isArray(data.vessels) ? data.vessels : [];
+    currentParsed = {
+      vessels: vesselsIn.map(v=>({ id:uid(), name: v && v.name ? String(v.name).trim() : '(tanpa nama)', gt: (v && v.gt!=null && v.gt!=='') ? String(v.gt).replace(/[^\d.,]/g,'') : undefined, type: (v && v.type) ? String(v.type).toUpperCase() : undefined })),
+      destination: data.destination ? String(data.destination) : '',
+      cargo: data.cargo ? String(data.cargo) : '',
+      crewCount: data.crewCount!=null && data.crewCount!=='' ? parseInt(data.crewCount) : undefined,
+      captain: data.captain ? String(data.captain) : undefined,
+      captainPhone: data.captainPhone ? normPhone(String(data.captainPhone)) : undefined,
+      owner: data.owner ? String(data.owner) : undefined,
+      ownerPhone: data.ownerPhone ? normPhone(String(data.ownerPhone)) : undefined,
+      company: data.company ? String(data.company) : undefined,
+      posisi: data.posisi ? String(data.posisi) : '-',
+      warnings: ['ℹ Data ini diproses oleh AI — mohon periksa kembali sebelum disimpan.'],
+      parserConfidence: 80,
+      rawInput: raw
+    };
+    if(currentParsed.vessels.length===0) currentParsed.warnings.push('⚠ AI tidak menemukan nama kapal pada teks ini.');
+    document.getElementById('previewZone').innerHTML = previewHTML(currentParsed);
+    toast('✓ AI berhasil membaca data.');
+  }catch(e){
+    document.getElementById('previewZone').innerHTML='';
+    const code = e && e.code;
+    if(code==='not_granted') toast('⚠ Izin menggunakan AI ditolak.','warn');
+    else if(code==='rate_limited') toast('⚠ Terlalu banyak permintaan AI, coba lagi sebentar.','warn');
+    else if(code==='invalid_json') toast('⚠ AI tidak menghasilkan format yang bisa dibaca. Coba lagi.','warn');
+    else if(code==='sampling_disabled'||code==='not_declared'||code==='capability_disabled') toast('⚠ Fitur AI tidak tersedia untuk akun ini.','warn');
+    else toast('⚠ AI gagal memproses data. Coba lagi.','warn');
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=oldLabel||'🤖 Gunakan AI'; }
+  }
+}
+function previewHTML(p){
+  const opsObj=opsList.find(o=>o.id===selectedOpsId);
+  const rows=[['Operasi',opsObj?opsObj.name:'Tanpa Operasi'],['Nama',formatVesselNames(p)],['Tonase',formatVesselTonnage(p)],['Tujuan',p.destination||'-'],['Muatan',p.cargo||'-'],['ABK',p.crewCount??'-'],['Captain',p.captain||'-'],['HP Captain',p.captainPhone||'-'],['Owner',p.owner||'-'],['HP Owner',p.ownerPhone||'-'],['PT',p.company||'-'],['Posisi',p.posisi||'-']];
+  return `<div class="card" style="padding:14px;">
+    <div style="font-weight:700;margin-bottom:8px;">PREVIEW HAILING</div>
+    ${p.warnings.map(w=>`<div style="background:#8a5a0022;border:1px solid #8a5a0055;color:#8a5a00;padding:6px 10px;border-radius:6px;font-size:12.5px;margin-bottom:6px;">${w}</div>`).join('')}
+    <div style="display:grid;grid-template-columns:140px 1fr;row-gap:6px;font-size:13px;">
+    ${rows.map(([k,v])=>`<div style="color:var(--gray);font-weight:600;">${k}</div><div>${v}</div>`).join('')}
+    </div>
+    <button class="btn" style="margin-top:12px;" onclick="saveParsed()">Simpan Hailing</button>
+  </div>`;
+}
+async function saveParsed(){
+  if(!currentParsed) return;
+  const opsObj=opsList.find(o=>o.id===selectedOpsId);
+  try{
+    const newId=await upsertRecord({
+      vessels:currentParsed.vessels,destination:currentParsed.destination,cargo:currentParsed.cargo,
+      crewCount:currentParsed.crewCount,captain:currentParsed.captain,captainPhone:currentParsed.captainPhone,
+      owner:currentParsed.owner,ownerPhone:currentParsed.ownerPhone,company:currentParsed.company,
+      posisi:currentParsed.posisi,rawInput:currentParsed.rawInput,parserConfidence:currentParsed.parserConfidence,
+      opsId:opsObj?opsObj.id:undefined,opsName:opsObj?opsObj.name:undefined
+    });
+    highlightId=newId;
+    showCrudSuccess('Data hailing berhasil disimpan ke database.');
+    currentParsed=null; document.getElementById('rawInput').value=''; document.getElementById('previewZone').innerHTML='';
+    setPage('data');
+  }catch(e){}
+}
+
+function renderStats(){
+  if(records.length===0) return `<div class="card" style="padding:40px;text-align:center;color:var(--gray);">Belum ada data untuk statistik.</div>`;
+  const byDest={}, byCargo={}, byType={}, byDay={}, byOps={};
+  records.forEach(r=>{ if(r.destination) byDest[r.destination]=(byDest[r.destination]||0)+1; if(r.cargo) byCargo[r.cargo]=(byCargo[r.cargo]||0)+1; (r.vessels||[]).forEach(v=>{ const t=v.type||'Other'; byType[t]=(byType[t]||0)+1; }); const d=(r.date||r.createdAt||'').slice(0,10); if(d) byDay[d]=(byDay[d]||0)+1; const opsKey=r.opsName||'Tanpa Operasi'; byOps[opsKey]=(byOps[opsKey]||0)+1; });
+  const bar=(obj,color)=>{ const max=Math.max(...Object.values(obj),1); return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><div style="width:110px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${k}">${k}</div><div style="flex:1;background:var(--border);border-radius:4px;height:14px;overflow:hidden;"><div class="barfill" data-w="${(v/max*100)}%" style="width:0;background:${color};height:100%;"></div></div><div style="width:28px;font-size:12px;text-align:right;">${v}</div></div>`).join(''); };
+  const dayEntries=Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).slice(-14);
+  const dayMax=Math.max(...dayEntries.map(e=>e[1]),1);
+  const dayChart=`<div style="display:flex;align-items:flex-end;gap:5px;height:120px;">${dayEntries.map(([d,v])=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:10px;margin-bottom:2px;">${v}</div><div class="barfill-h" data-h="${(v/dayMax*100)}%" style="width:100%;height:0;background:linear-gradient(180deg,var(--gold),var(--navy));border-radius:3px 3px 0 0;"></div><div style="font-size:9px;color:var(--gray);margin-top:4px;writing-mode:vertical-rl;">${d.slice(5)}</div></div>`).join('')}</div>`;
+  return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;">
+    <div class="card" style="padding:14px;grid-column:1/-1;"><div style="font-weight:700;margin-bottom:10px;font-size:13px;">Hailing per Hari</div>${dayChart}</div>
+    <div class="card" style="padding:14px;"><div style="font-weight:700;margin-bottom:10px;font-size:13px;">Hailing per Pelaksanaan Operasi</div>${bar(byOps,'#0b1e3d')}</div>
+    <div class="card" style="padding:14px;"><div style="font-weight:700;margin-bottom:10px;font-size:13px;">Hailing by Destination</div>${bar(byDest,'#122a52')}</div>
+    <div class="card" style="padding:14px;"><div style="font-weight:700;margin-bottom:10px;font-size:13px;">Hailing by Cargo</div>${bar(byCargo,'#c8a24a')}</div>
+    <div class="card" style="padding:14px;"><div style="font-weight:700;margin-bottom:10px;font-size:13px;">Vessel Type Distribution</div>${bar(byType,'#3a4a6d')}</div>
+  </div>`;
+}
+
+// ---------- View / Edit / Delete modals ----------
+function attachPageHandlers(){}
+function openView(id){ viewingId=id; renderModal(); }
+function openEdit(id){ editingId=id; renderModal(); }
+function openDelete(id){ deletingId=id; renderModal(); }
+function openNominal(id){ nominalTargetId=id; renderModal(); }
+function closeModal(){ viewingId=null; editingId=null; deletingId=null; nominalTargetId=null; renderModal(); }
+
+function renderModal(){
+  let el=document.getElementById('modalRoot');
+  if(!el){ el=document.createElement('div'); el.id='modalRoot'; document.body.appendChild(el); }
+  if(viewingId){ const r=records.find(x=>x.id===viewingId); el.innerHTML=viewModalHTML(r); }
+  else if(editingId){ const r=records.find(x=>x.id===editingId); el.innerHTML=editModalHTML(r); }
+  else if(deletingId){ const r=records.find(x=>x.id===deletingId); el.innerHTML=deleteModalHTML(r); }
+  else if(nominalTargetId){ const r=records.find(x=>x.id===nominalTargetId); el.innerHTML=nominalModalHTML(r); setTimeout(()=>document.getElementById('nominalInput')?.focus(),0); }
+  else if(manageOpsOpen){ el.innerHTML=manageOpsModalHTML(); setTimeout(()=>document.getElementById('opsSearchInput')?.focus(),0); }
+  else if(columnPickerOpen){ el.innerHTML=columnPickerModalHTML(); }
+  else if(bulkDeleteConfirm){ el.innerHTML=bulkDeleteModalHTML(); }
+  else if(addingOps){ el.innerHTML=addOpsModalHTML(); setTimeout(()=>document.getElementById('newOpsName')?.focus(),0); }
+  else if(deletingOpsId){ const o=opsList.find(x=>x.id===deletingOpsId); el.innerHTML=deleteOpsModalHTML(o); }
+  else if(pendingImportData){ el.innerHTML=importModeModalHTML(); }
+  else el.innerHTML='';
+}
+function closeAddOps(){ addingOps=false; renderModal(); }
+function addOpsModalHTML(){
+  return `<div class="modal-bg" onclick="if(event.target===this)closeAddOps()"><div class="card" style="max-width:400px;width:100%;padding:20px;">
+  <div style="font-weight:800;margin-bottom:10px;">Operasi Baru</div>
+  <label style="font-size:11px;color:var(--gray);">Nama Operasi</label>
+  <input id="newOpsName" placeholder="contoh: Ops. Trisula Jaya" style="width:100%;margin-top:4px;" onkeydown="if(event.key==='Enter')confirmAddOps()">
+  <div style="text-align:right;margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn btn-outline" onclick="closeAddOps()">Batal</button>
+    <button class="btn" onclick="confirmAddOps()">Simpan</button>
+  </div></div></div>`;
+}
+function deleteOpsModalHTML(o){
+  if(!o) return '';
+  return `<div class="modal-bg" onclick="if(event.target===this){deletingOpsId=null;renderModal();}"><div class="card" style="max-width:420px;width:100%;padding:20px;">
+  <div style="font-weight:800;margin-bottom:8px;">Hapus operasi ini?</div>
+  <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">Operasi: <b>${o.name}</b><br>Data hailing yang sudah tercatat tidak akan terhapus.</div>
+  <div style="text-align:right;display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn btn-outline" onclick="deletingOpsId=null;renderModal()">Batal</button>
+    <button class="btn btn-danger" onclick="confirmDeleteOps('${o.id}')">Hapus</button>
+  </div></div></div>`;
+}
+function importModeModalHTML(){
+  return `<div class="modal-bg"><div class="card" style="max-width:420px;width:100%;padding:20px;">
+  <div style="font-weight:800;margin-bottom:8px;">Import sebagai:</div>
+  <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">${pendingImportData.length} data ditemukan pada file.</div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <button class="btn" onclick="applyImport('merge')">Tambahkan Data</button>
+    <button class="btn btn-danger" onclick="applyImport('replace')">Ganti Seluruh Data</button>
+    <button class="btn btn-outline" onclick="pendingImportData=null;renderModal()">Batal</button>
+  </div></div></div>`;
+}
+async function applyImport(mode){
+  try{
+    const result=await apiFetch('/import',{method:'POST',body:JSON.stringify({mode,data:pendingImportData})});
+    records=result.records||[];
+    await loadOps();
+    ensureNumbering(); pendingImportData=null;
+    renderModal(); showCrudSuccess('Data berhasil diimpor ke database.'); renderApp();
+  }catch(e){ showCrudError('Import data',e); }
+}
+function viewModalHTML(r){
+  if(!r) return '';
+  return `<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="card" style="max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:20px;">
+  <div style="font-weight:800;font-size:15px;margin-bottom:14px;">DETAIL HAILING</div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">INFORMASI HAILING</div>
+  <div style="font-size:13px;margin-bottom:10px;">Tanggal: ${r.date||'-'} &nbsp; Jam: ${r.time||'-'} &nbsp; Posisi: ${r.posisi||'-'}</div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">DAFTAR KAPAL</div>
+  <div class="scrollx" style="margin-bottom:10px;"><table><thead><tr><th>No</th><th>Nama Kapal</th><th>Type</th><th>GT</th></tr></thead><tbody>
+  ${(r.vessels||[]).map((v,i)=>`<tr><td>${i+1}</td><td>${v.name}</td><td>${v.type||'-'}</td><td>${v.gt??'-'}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">OPERASIONAL</div>
+  <div style="font-size:13px;margin-bottom:10px;">Tujuan: ${r.destination||'-'} &nbsp; Muatan: ${r.cargo||'-'} &nbsp; ABK: ${r.crewCount??'-'}</div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">CAPTAIN</div>
+  <div style="font-size:13px;margin-bottom:10px;">${r.captain||'-'} &nbsp; ${r.captainPhone||'-'}</div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">OWNER</div>
+  <div style="font-size:13px;margin-bottom:10px;">${r.owner||'-'} &nbsp; ${r.ownerPhone||'-'}</div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">PERUSAHAAN</div>
+  <div style="font-size:13px;margin-bottom:10px;">${r.company||'-'}</div>
+  <div style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:4px;">RAW INPUT</div>
+  <pre style="white-space:pre-wrap;font-size:11.5px;background:var(--bg);padding:8px;border-radius:6px;border:1px solid var(--border);">${(r.rawInput||'').replace(/</g,'&lt;')}</pre>
+  <div style="text-align:right;margin-top:12px;"><button class="btn btn-outline" onclick="closeModal()">Tutup</button></div>
+  </div></div>`;
+}
+function editModalHTML(r){
+  if(!r) return '';
+  const vesselRows=(r.vessels||[]).map((v,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px;" data-vrow="${i}">
+    <input placeholder="Nama kapal" value="${v.name||''}" data-f="name" style="flex:1;">
+    <input placeholder="GT" value="${v.gt??''}" data-f="gt" style="width:90px;">
+    <button class="btn btn-danger" style="padding:4px 8px;" onclick="this.parentElement.remove()">×</button>
+  </div>`).join('');
+  return `<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="card" style="max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:20px;">
+  <div style="font-weight:800;font-size:15px;margin-bottom:14px;">EDIT HAILING</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+    <div><label style="font-size:11px;color:var(--gray);">Tanggal</label><input id="e_date" type="date" value="${(r.date||'').slice(0,10)}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">Jam</label><input id="e_time" type="time" value="${r.time||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">Posisi</label><input id="e_posisi" value="${r.posisi||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">ABK</label><input id="e_abk" value="${r.crewCount??''}" style="width:100%;"></div>
+  </div>
+  <label style="font-size:11px;color:var(--gray);">Kapal (Nama / GT)</label>
+  <div id="vesselList">${vesselRows}</div>
+  <button class="btn btn-outline" style="margin:6px 0 12px;" onclick="document.getElementById('vesselList').insertAdjacentHTML('beforeend', vesselRowTpl())">+ Tambah Kapal</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div><label style="font-size:11px;color:var(--gray);">Tujuan</label><input id="e_dest" value="${r.destination||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">Muatan</label><input id="e_cargo" value="${r.cargo||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">Captain</label><input id="e_capt" value="${r.captain||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">HP Captain</label><input id="e_captphone" value="${r.captainPhone||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">Owner</label><input id="e_owner" value="${r.owner||''}" style="width:100%;"></div>
+    <div><label style="font-size:11px;color:var(--gray);">HP Owner</label><input id="e_ownerphone" value="${r.ownerPhone||''}" style="width:100%;"></div>
+    <div style="grid-column:1/-1;"><label style="font-size:11px;color:var(--gray);">PT</label><input id="e_pt" value="${r.company||''}" style="width:100%;"></div>
+  </div>
+  <div style="text-align:right;margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+    <button class="btn" onclick="saveEdit('${r.id}')">Simpan</button>
+  </div>
+  </div></div>`;
+}
+function vesselRowTpl(){ return `<div style="display:flex;gap:6px;margin-bottom:6px;"><input placeholder="Nama kapal" data-f="name" style="flex:1;"><input placeholder="GT" data-f="gt" style="width:90px;"><button class="btn btn-danger" style="padding:4px 8px;" onclick="this.parentElement.remove()">×</button></div>`; }
+async function saveEdit(id){
+  const vessels=[...document.querySelectorAll('#vesselList > div')].map(row=>{
+    const name=row.querySelector('[data-f="name"]').value.trim();
+    const gtRaw=row.querySelector('[data-f="gt"]').value.trim();
+    if(!name) return null;
+    const t=name.match(/^(TB|TK|KM|MV|TUG|BARGE)\b/i);
+    return { id:uid(), name, gt: gtRaw || undefined, type: t?t[1].toUpperCase():undefined };
+  }).filter(Boolean);
+  try{
+    await upsertRecord({ date:document.getElementById('e_date').value, time:document.getElementById('e_time').value, posisi:document.getElementById('e_posisi').value||'-', crewCount: document.getElementById('e_abk').value? parseInt(document.getElementById('e_abk').value):undefined, vessels, destination:document.getElementById('e_dest').value, cargo:document.getElementById('e_cargo').value, captain:document.getElementById('e_capt').value, captainPhone:document.getElementById('e_captphone').value, owner:document.getElementById('e_owner').value, ownerPhone:document.getElementById('e_ownerphone').value, company:document.getElementById('e_pt').value }, id);
+    closeModal(); renderApp();
+    showCrudSuccess('Perubahan data hailing berhasil disimpan ke database.');
+  }catch(e){ showCrudError('Simpan perubahan',e); }
+}
+function deleteModalHTML(r){
+  if(!r) return '';
+  return `<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="card" style="max-width:420px;width:100%;padding:20px;">
+  <div style="font-weight:800;margin-bottom:8px;">Hapus data hailing ini?</div>
+  <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">Data yang akan dihapus:<br><b>${formatVesselNames(r)}</b></div>
+  <div style="text-align:right;display:flex;gap:8px;justify-content:flex-end;">
+    <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+    <button class="btn btn-danger" onclick="confirmDelete('${r.id}')">Hapus</button>
+  </div></div></div>`;
+}
+async function confirmDelete(id){
+  try{
+    await deleteRecord(id);
+    closeModal(); renderApp();
+    showCrudSuccess('Data hailing berhasil dihapus dari database.');
+  }catch(e){ showCrudError('Hapus data hailing',e); }
+}
+function nominalModalHTML(r){
+  if(!r) return '';
+  return `<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="card" style="max-width:400px;width:100%;padding:20px;">
+  <div style="font-weight:800;margin-bottom:4px;">${r.nominal!=null?'Edit':'Tambah'} Nominal Transfer</div>
+  <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">${formatVesselNames(r)}</div>
+  <label style="font-size:11px;color:var(--gray);">Nominal (Rp)</label>
+  <input id="nominalInput" type="number" min="0" placeholder="contoh: 500000" value="${r.nominal??''}" style="width:100%;margin-top:4px;" onkeydown="if(event.key==='Enter')confirmNominal('${r.id}')">
+  <div style="text-align:right;margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">
+    ${r.nominal!=null?`<button class="btn btn-danger" style="margin-right:auto;" onclick="clearNominal('${r.id}')">Hapus Nominal</button>`:''}
+    <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+    <button class="btn" onclick="confirmNominal('${r.id}')">Simpan</button>
+  </div></div></div>`;
+}
+async function confirmNominal(id){
+  const input=document.getElementById('nominalInput');
+  const raw=input?input.value.trim():'';
+  const num=parseInt(raw,10);
+  if(!raw || isNaN(num) || num<0){ const e=new Error('Nominal harus berupa angka 0 atau lebih.'); showCrudError('Simpan nominal',e); input?.focus(); return; }
+  try{
+    await upsertRecord({ nominal:num }, id);
+    closeModal(); renderApp();
+    showCrudSuccess('Nominal transfer berhasil disimpan ke database.');
+  }catch(e){ showCrudError('Simpan nominal',e); }
+}
+async function clearNominal(id){
+  try{
+    await upsertRecord({ nominal:null }, id);
+    closeModal(); renderApp();
+    showCrudSuccess('Nominal transfer berhasil dihapus dari database.');
+  }catch(e){ showCrudError('Hapus nominal',e); }
+}
+function openManageOps(){ manageOpsOpen=true; renderModal(); }
+function closeManageOps(){ manageOpsOpen=false; opsSearchQuery=''; renderModal(); renderApp(); }
+function manageOpsModalHTML(){
+  return `<div class="modal-bg" onclick="if(event.target===this)closeManageOps()"><div class="card" style="max-width:460px;width:100%;max-height:82vh;overflow:auto;padding:20px;">
+  <div style="font-weight:800;margin-bottom:10px;">Kelola Operasi</div>
+  <input id="opsSearchInput" placeholder="Cari operasi..." value="${opsSearchQuery}" style="width:100%;margin-bottom:10px;" oninput="opsSearchQuery=this.value;renderOpsListContainer();">
+  <div id="opsListContainer" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto;margin-bottom:12px;">${opsListItemsHTML()}</div>
+  <div style="display:flex;gap:8px;">
+    <input id="newOpsNameInline" placeholder="Nama operasi baru..." style="flex:1;" onkeydown="if(event.key==='Enter')confirmAddOpsInline()">
+    <button class="btn" onclick="confirmAddOpsInline()">Tambah</button>
+  </div>
+  <div style="text-align:right;margin-top:14px;"><button class="btn btn-outline" onclick="closeManageOps()">Tutup</button></div>
+  </div></div>`;
+}
+function opsListItemsHTML(){
+  const q=opsSearchQuery.trim().toLowerCase();
+  const filtered=opsList.filter(o=>o.name.toLowerCase().includes(q));
+  if(opsList.length===0) return `<div style="font-size:12.5px;color:var(--gray);text-align:center;padding:10px;">Belum ada operasi. Tambahkan di bawah.</div>`;
+  if(filtered.length===0) return `<div style="font-size:12.5px;color:var(--gray);text-align:center;padding:10px;">Operasi "${q}" tidak ditemukan.</div>`;
+  return filtered.map(o=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid var(--border);border-radius:6px;">
+    <span style="font-size:13px;">${o.name}</span>
+    <button class="btn btn-danger" style="padding:3px 8px;font-size:11px;" onclick="openDeleteOps('${o.id}')">Hapus</button>
+  </div>`).join('');
+}
+function renderOpsListContainer(){ const el=document.getElementById('opsListContainer'); if(el) el.innerHTML=opsListItemsHTML(); }
+async function confirmAddOpsInline(){
+  const input=document.getElementById('newOpsNameInline'); const name=input?input.value.trim():'';
+  if(!name){ input?.focus(); return; }
+  try{
+    const o=await apiFetch('/operations',{method:'POST',body:JSON.stringify({name})});
+    opsList.push(o);
+    if(input) input.value='';
+    renderOpsListContainer();
+    showCrudSuccess('Operasi berhasil ditambahkan ke database.');
+  }catch(e){ showCrudError('Tambah operasi',e); }
+}
+function openColumnPicker(){ columnPickerOpen=true; renderModal(); }
+function closeColumnPicker(){ columnPickerOpen=false; renderModal(); }
+function toggleColumn(id,checked){
+  if(checked){ if(!visibleColumns.includes(id)) visibleColumns.push(id); }
+  else {
+    if(visibleColumns.length<=1){ toast('⚠ Minimal satu kolom harus ditampilkan.','warn'); const cb=document.querySelector('input[value="'+id+'"]'); if(cb) cb.checked=true; return; }
+    visibleColumns=visibleColumns.filter(c=>c!==id);
+  }
+  renderApp();
+}
+function columnPickerModalHTML(){
+  return `<div class="modal-bg" onclick="if(event.target===this)closeColumnPicker()"><div class="card" style="max-width:420px;width:100%;max-height:82vh;overflow:auto;padding:20px;">
+  <div style="font-weight:800;margin-bottom:10px;">Pilih Kolom Ditampilkan</div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+    ${COLS.map(c=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;"><input type="checkbox" value="${c}" ${visibleColumns.includes(c)?'checked':''} onchange="toggleColumn('${c}',this.checked)"> ${COL_LABELS[c]}</label>`).join('')}
+  </div>
+  <div style="display:flex;gap:8px;justify-content:space-between;">
+    <button class="btn btn-outline" onclick="visibleColumns=[...COLS];renderApp();renderModal();">Pilih Semua</button>
+    <button class="btn" onclick="closeColumnPicker()">Selesai</button>
+  </div></div></div>`;
+}
+
+// ---------- Export / Import ----------
+async function offerDownload(filename, blob){
+  try{
+    const downloads = window.claude ? await window.claude.use('downloads') : null;
+    if(downloads){
+      const res = await downloads.save({filename, data: blob});
+      toast(res.status==='saved' ? '✓ File berhasil diunduh.' : '✓ File terkirim.');
+      return true;
+    }
+  }catch(e){
+    if(e && e.code==='declined') return false;
+    if(e && e.code==='too_large'){ toast('⚠ File terlalu besar untuk diunduh.','warn'); return false; }
+    if(e && e.code){ toast('⚠ Gagal mengunduh file.','warn'); return false; }
+  }
+  try{
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    toast('✓ File berhasil diunduh.');
+    return true;
+  }catch(e){ toast('⚠ Unduhan tidak tersedia di tampilan ini.','warn'); return false; }
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
+  offerDownload('kri-kujang-backup-'+Date.now()+'.json', blob);
+}
+function handleImportFile(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!Array.isArray(data)) throw new Error('bad format');
+      pendingImportData=data;
+      renderModal();
+    }catch(err){ toast('⚠ File JSON tidak valid.','warn'); }
+  };
+  reader.readAsText(file); ev.target.value='';
+}
+async function exportExcel(){
+  try{
+    const list=filteredRecords();
+    const cols=COLS.filter(c=>visibleColumns.includes(c));
+    const rows=list.map((r,i)=>{ const obj={}; cols.forEach(c=>{ obj[COL_LABELS[c]]=COL_VALUE[c](r,i); }); return obj; });
+    const ws=XLSX.utils.json_to_sheet(rows); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Hailing');
+    const arr=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const blob=new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    await offerDownload('kri-kujang-hailing'+opsFileSuffix()+'-'+Date.now()+'.xlsx', blob);
+  }catch(e){ toast('⚠ Gagal mengekspor Excel.','warn'); }
+}
+function opsFileSuffix(){
+  if(!filters.opsId) return '';
+  const o=opsList.find(x=>x.id===filters.opsId);
+  return o ? '-'+o.name.replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toLowerCase() : '';
+}
+function opsContextLabel(){
+  if(!filters.opsId) return 'Semua Operasi';
+  const o=opsList.find(x=>x.id===filters.opsId);
+  return o ? o.name : 'Semua Operasi';
+}
+async function exportPDF(){
+  try{
+    const list=filteredRecords();
+    const { jsPDF } = window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+    doc.setFontSize(14); doc.text('KRI KUJANG',40,32);
+    doc.setFontSize(10); doc.text('DATA KAPAL — KRI KUJANG HAILING',40,48);
+    doc.text('Operasi: '+opsContextLabel(),40,62);
+    doc.text('Exported: '+new Date().toLocaleString('id-ID'),40,76);
+    const cols=COLS.filter(c=>visibleColumns.includes(c));
+    const body=list.map((r,i)=>cols.map(c=>COL_VALUE[c](r,i)));
+    doc.autoTable({ head:[cols.map(c=>COL_LABELS[c])], body, startY:88, styles:{fontSize:6,cellWidth:'wrap'}, headStyles:{fillColor:[11,30,61]}, theme:'grid' });
+    const blob=doc.output('blob');
+    await offerDownload('kri-kujang-hailing'+opsFileSuffix()+'-'+Date.now()+'.pdf', blob);
+  }catch(e){ toast('⚠ Gagal membuat PDF.','warn'); }
+}
+
+// ---------- Init ----------
+startApp();
+</script>
+</body>
+</html>
