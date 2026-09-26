@@ -1,0 +1,988 @@
+[
+  {
+    "id": "h4igoo79mfcmuhkdpr2",
+    "no": 1,
+    "createdAt": "2026-09-25T23:00:37.406Z",
+    "updatedAt": "2026-09-25T23:00:37.406Z",
+    "vessels": [
+      {
+        "id": "dgg6kw6zv6fmuhkdpr1",
+        "name": "KM. JAYA ELO 6",
+        "type": "KM"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Bumindo",
+    "nominal": 700000,
+    "rawInput": "{\"Nama Kapal\":\"KM. JAYA ELO 6\",\"Owner\":\"Bumindo\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"700,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "3ngk6pdhonumuhkdpr2",
+    "no": 2,
+    "createdAt": "2026-09-25T23:00:37.406Z",
+    "updatedAt": "2026-09-25T23:00:37.406Z",
+    "vessels": [
+      {
+        "id": "waxibgbf16smuhkdpr2",
+        "name": "TB. WAHANA 2008",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Hardino",
+    "nominal": 400000,
+    "rawInput": "{\"Nama Kapal\":\"TB. WAHANA 2008\",\"Owner\":\"Hardino\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"400,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "uyfu3egx2w8muhkdpr2",
+    "no": 3,
+    "createdAt": "2026-09-25T23:00:37.406Z",
+    "updatedAt": "2026-09-25T23:00:37.406Z",
+    "vessels": [
+      {
+        "id": "38mkz02yilmmuhkdpr2",
+        "name": "TB. AQUARIUS 1",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Dino",
+    "nominal": 400000,
+    "rawInput": "{\"Nama Kapal\":\"TB. AQUARIUS 1\",\"Owner\":\"Dino\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"400,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "v4c8506w93muhkdpr3",
+    "no": 4,
+    "createdAt": "2026-09-25T23:00:37.407Z",
+    "updatedAt": "2026-09-25T23:00:37.407Z",
+    "vessels": [
+      {
+        "id": "amb2we0mdhmuhkdpr3",
+        "name": "TB. KARYA AGUNG 21",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Iwan",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"TB. KARYA AGUNG 21\",\"Owner\":\"Iwan\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "wdi50dybdtcmuhkdpr3",
+    "no": 5,
+    "createdAt": "2026-09-25T23:00:37.407Z",
+    "updatedAt": "2026-09-25T23:00:37.407Z",
+    "vessels": [
+      {
+        "id": "89e1caid5qmuhkdpr3",
+        "name": "TB. SRIKANDI BARUNA",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Tomi",
+    "nominal": 500000,
+    "rawInput": "{\"Nama Kapal\":\"TB. SRIKANDI BARUNA\",\"Owner\":\"Tomi\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"500,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "wkg1c7x0grmuhkdpr3",
+    "no": 6,
+    "createdAt": "2026-09-25T23:00:37.407Z",
+    "updatedAt": "2026-09-25T23:00:37.407Z",
+    "vessels": [
+      {
+        "id": "zj1my6ja92gmuhkdpr3",
+        "name": "SPOB. SUKSES BERSAMA 18"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Salma",
+    "nominal": 2000000,
+    "rawInput": "{\"Nama Kapal\":\"SPOB. SUKSES BERSAMA 18\",\"Owner\":\"Salma\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"2,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "merf4zix22omuhkdpr3",
+    "no": 7,
+    "createdAt": "2026-09-25T23:00:37.407Z",
+    "updatedAt": "2026-09-25T23:00:37.407Z",
+    "vessels": [
+      {
+        "id": "r26qcjm2k4imuhkdpr3",
+        "name": "SPOB. BINTANG TIMUR PERKASA"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "H. Yusroni",
+    "rawInput": "{\"Nama Kapal\":\"SPOB. BINTANG TIMUR PERKASA\",\"Owner\":\"H. Yusroni\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "etizicck1ilmuhkdpr4",
+    "no": 8,
+    "createdAt": "2026-09-25T23:00:37.408Z",
+    "updatedAt": "2026-09-25T23:00:37.408Z",
+    "vessels": [
+      {
+        "id": "m3668ez9f5nmuhkdpr4",
+        "name": "SPOB. TRASINDO 8"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Riah",
+    "rawInput": "{\"Nama Kapal\":\"SPOB. TRASINDO 8\",\"Owner\":\"Riah\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "u7ch4g727slmuhkdpr4",
+    "no": 9,
+    "createdAt": "2026-09-25T23:00:37.408Z",
+    "updatedAt": "2026-09-25T23:00:37.408Z",
+    "vessels": [
+      {
+        "id": "b92xii2qsumuhkdpr4",
+        "name": "KM. STB 36",
+        "type": "KM"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Faisal",
+    "rawInput": "{\"Nama Kapal\":\"KM. STB 36\",\"Owner\":\"Faisal\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "2h6t25xptsjmuhkdpr4",
+    "no": 10,
+    "createdAt": "2026-09-25T23:00:37.408Z",
+    "updatedAt": "2026-09-25T23:00:37.408Z",
+    "vessels": [
+      {
+        "id": "hvv4dq4b375muhkdpr4",
+        "name": "SPOB. SAMARA"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Udi",
+    "nominal": 1500000,
+    "rawInput": "{\"Nama Kapal\":\"SPOB. SAMARA\",\"Owner\":\"Udi\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,500,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "kkjvslprt8muhkdpr4",
+    "no": 11,
+    "createdAt": "2026-09-25T23:00:37.408Z",
+    "updatedAt": "2026-09-25T23:00:37.408Z",
+    "vessels": [
+      {
+        "id": "6wjjck90w1hmuhkdpr4",
+        "name": "SPOB SRIKANDI 515"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Simon",
+    "rawInput": "{\"Nama Kapal\":\"SPOB SRIKANDI 515\",\"Owner\":\"Simon\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "htlezv32kxgmuhkdpr5",
+    "no": 12,
+    "createdAt": "2026-09-25T23:00:37.409Z",
+    "updatedAt": "2026-09-25T23:00:37.409Z",
+    "vessels": [
+      {
+        "id": "n4t1lq415jkmuhkdpr4",
+        "name": "LCT. LAS 2"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Akbar",
+    "rawInput": "{\"Nama Kapal\":\"LCT. LAS 2\",\"Owner\":\"Akbar\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "6gmdpbyttnfmuhkdpr5",
+    "no": 13,
+    "createdAt": "2026-09-25T23:00:37.409Z",
+    "updatedAt": "2026-09-25T23:00:37.409Z",
+    "vessels": [
+      {
+        "id": "j24gtojgkimuhkdpr5",
+        "name": "MT. SP1 BSI"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Agung Puragamasti",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"MT. SP1 BSI\",\"Owner\":\"Agung Puragamasti\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "co8ma45ld9amuhkdpr5",
+    "no": 14,
+    "createdAt": "2026-09-25T23:00:37.409Z",
+    "updatedAt": "2026-09-25T23:00:37.409Z",
+    "vessels": [
+      {
+        "id": "5v7o1duqjbgmuhkdpr5",
+        "name": "TB. HARLINA 125",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Toni Jkt",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"TB. HARLINA 125\",\"Owner\":\"Toni Jkt\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "xxjts4gyizmmuhkdpr5",
+    "no": 15,
+    "createdAt": "2026-09-25T23:00:37.409Z",
+    "updatedAt": "2026-09-25T23:00:37.409Z",
+    "vessels": [
+      {
+        "id": "mpp2kkg4iufmuhkdpr5",
+        "name": "TB. KARYA PACIFIC 2218",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Toni Jkt",
+    "rawInput": "{\"Nama Kapal\":\"TB. KARYA PACIFIC 2218\",\"Owner\":\"Toni Jkt\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "p3kxucwipzamuhkdpr5",
+    "no": 16,
+    "createdAt": "2026-09-25T23:00:37.409Z",
+    "updatedAt": "2026-09-25T23:00:37.409Z",
+    "vessels": [
+      {
+        "id": "o28a16qyt6imuhkdpr5",
+        "name": "TB. LL LYLY",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Arman JKT",
+    "nominal": 1500000,
+    "rawInput": "{\"Nama Kapal\":\"TB. LL LYLY\",\"Owner\":\"Arman JKT\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,500,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "qgy2v2x53vmuhkdpr6",
+    "no": 17,
+    "createdAt": "2026-09-25T23:00:37.410Z",
+    "updatedAt": "2026-09-25T23:00:37.410Z",
+    "vessels": [
+      {
+        "id": "79g01jhxloimuhkdpr6",
+        "name": "LCT. LAS 2"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Akbar JKT",
+    "rawInput": "{\"Nama Kapal\":\"LCT. LAS 2\",\"Owner\":\"Akbar JKT\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "h3awjaept3jmuhkdpr6",
+    "no": 18,
+    "createdAt": "2026-09-25T23:00:37.410Z",
+    "updatedAt": "2026-09-25T23:00:37.410Z",
+    "vessels": [
+      {
+        "id": "nkwq5yned3muhkdpr6",
+        "name": "TB. SRIKANDI BARUNA",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Tomi Jkt",
+    "nominal": 500000,
+    "rawInput": "{\"Nama Kapal\":\"TB. SRIKANDI BARUNA\",\"Owner\":\"Tomi Jkt\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"500,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "jf5prbnfaumuhkdpr6",
+    "no": 19,
+    "createdAt": "2026-09-25T23:00:37.410Z",
+    "updatedAt": "2026-09-25T23:00:37.410Z",
+    "vessels": [
+      {
+        "id": "d90draag7eomuhkdpr6",
+        "name": "TB. PRIMA JAYA",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "David Lpg",
+    "rawInput": "{\"Nama Kapal\":\"TB. PRIMA JAYA\",\"Owner\":\"David Lpg\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "xx33hysnirmuhkdpr6",
+    "no": 20,
+    "createdAt": "2026-09-25T23:00:37.410Z",
+    "updatedAt": "2026-09-25T23:00:37.410Z",
+    "vessels": [
+      {
+        "id": "m9z5jgq1syamuhkdpr6",
+        "name": "TB. TRANS PACIFIC 55",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Dindah",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"TB. TRANS PACIFIC 55\",\"Owner\":\"Dindah\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "1oxpc2zmmtsmuhkdpr7",
+    "no": 21,
+    "createdAt": "2026-09-25T23:00:37.411Z",
+    "updatedAt": "2026-09-25T23:00:37.411Z",
+    "vessels": [
+      {
+        "id": "1jayukamshkmuhkdpr7",
+        "name": "MT. NEW STAR 5"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Aswin",
+    "rawInput": "{\"Nama Kapal\":\"MT. NEW STAR 5\",\"Owner\":\"Aswin\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "n6l7s9es8mmuhkdpr7",
+    "no": 22,
+    "createdAt": "2026-09-25T23:00:37.411Z",
+    "updatedAt": "2026-09-25T23:00:37.411Z",
+    "vessels": [
+      {
+        "id": "1zgop8cq9hpmuhkdpr7",
+        "name": "TB. BARUNA POWER 5",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Mukhtar",
+    "rawInput": "{\"Nama Kapal\":\"TB. BARUNA POWER 5\",\"Owner\":\"Mukhtar\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "x6lu1tmx8odmuhkdpr9",
+    "no": 23,
+    "createdAt": "2026-09-25T23:00:37.413Z",
+    "updatedAt": "2026-09-25T23:00:37.413Z",
+    "vessels": [
+      {
+        "id": "sj7s84rz4z9muhkdpr9",
+        "name": "TB. MAX 02",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Fahrul Jkt",
+    "rawInput": "{\"Nama Kapal\":\"TB. MAX 02\",\"Owner\":\"Fahrul Jkt\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "7sda49eq0oamuhkdpr9",
+    "no": 24,
+    "createdAt": "2026-09-25T23:00:37.413Z",
+    "updatedAt": "2026-09-25T23:00:37.413Z",
+    "vessels": [
+      {
+        "id": "fhml2qrxsvmuhkdpr9",
+        "name": "TB TAMBALANG 1",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Agus Tusyadi",
+    "rawInput": "{\"Nama Kapal\":\"TB TAMBALANG 1\",\"Owner\":\"Agus Tusyadi\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "5o40vm10fqfmuhkdpr9",
+    "no": 25,
+    "createdAt": "2026-09-25T23:00:37.413Z",
+    "updatedAt": "2026-09-25T23:00:37.413Z",
+    "vessels": [
+      {
+        "id": "wecqijs47z7muhkdpr9",
+        "name": "TB. HAKUNA 2001",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Rio Sby",
+    "rawInput": "{\"Nama Kapal\":\"TB. HAKUNA 2001\",\"Owner\":\"Rio Sby\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "rd30par0f4emuhkdpra",
+    "no": 26,
+    "createdAt": "2026-09-25T23:00:37.414Z",
+    "updatedAt": "2026-09-25T23:00:37.414Z",
+    "vessels": [
+      {
+        "id": "c8zrjqw7kbmmuhkdpra",
+        "name": "TB. MARINA 2212",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Abdul Jkt",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"TB. MARINA 2212\",\"Owner\":\"Abdul Jkt\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "nuonly1mpremuhkdpra",
+    "no": 27,
+    "createdAt": "2026-09-25T23:00:37.414Z",
+    "updatedAt": "2026-09-25T23:00:37.414Z",
+    "vessels": [
+      {
+        "id": "3hsybxzswd2muhkdpra",
+        "name": "TB. KAILI VII",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Arip Kalimantan",
+    "rawInput": "{\"Nama Kapal\":\"TB. KAILI VII\",\"Owner\":\"Arip Kalimantan\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "r9tru2qvheemuhkdpra",
+    "no": 28,
+    "createdAt": "2026-09-25T23:00:37.414Z",
+    "updatedAt": "2026-09-25T23:00:37.414Z",
+    "vessels": [
+      {
+        "id": "6zgtqe69nmdmuhkdpra",
+        "name": "TB. MEGAH 1610",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Akiau Batam",
+    "nominal": 500000,
+    "rawInput": "{\"Nama Kapal\":\"TB. MEGAH 1610\",\"Owner\":\"Akiau Batam\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"500,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "f9qbkgw6c1pmuhkdprb",
+    "no": 29,
+    "createdAt": "2026-09-25T23:00:37.415Z",
+    "updatedAt": "2026-09-25T23:00:37.415Z",
+    "vessels": [
+      {
+        "id": "ujcs63dixgemuhkdprb",
+        "name": "TB. AQUARIUS 1609",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Herdiono Jkt",
+    "nominal": 450000,
+    "rawInput": "{\"Nama Kapal\":\"TB. AQUARIUS 1609\",\"Owner\":\"Herdiono Jkt\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"450,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "wcnxy62tj6muhkdprb",
+    "no": 30,
+    "createdAt": "2026-09-25T23:00:37.415Z",
+    "updatedAt": "2026-09-25T23:00:37.415Z",
+    "vessels": [
+      {
+        "id": "4lg0x7i0gjdmuhkdprb",
+        "name": "TB. ALUGA LAUT",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Feri Rengat",
+    "rawInput": "{\"Nama Kapal\":\"TB. ALUGA LAUT\",\"Owner\":\"Feri Rengat\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "tauxx110xtmuhkdprb",
+    "no": 31,
+    "createdAt": "2026-09-25T23:00:37.415Z",
+    "updatedAt": "2026-09-25T23:00:37.415Z",
+    "vessels": [
+      {
+        "id": "c4cdhajme54muhkdprb",
+        "name": "SPOB. AMRTA LIMA I"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "AA",
+    "rawInput": "{\"Nama Kapal\":\"SPOB. AMRTA LIMA I\",\"Owner\":\"AA\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "z0fmpndlvohmuhkdprc",
+    "no": 32,
+    "createdAt": "2026-09-25T23:00:37.416Z",
+    "updatedAt": "2026-09-25T23:00:37.416Z",
+    "vessels": [
+      {
+        "id": "s74oflb373muhkdprc",
+        "name": "TB. MARINO 178",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Bangkit Sby",
+    "rawInput": "{\"Nama Kapal\":\"TB. MARINO 178\",\"Owner\":\"Bangkit Sby\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "rtjd4sf3w18muhkdprc",
+    "no": 33,
+    "createdAt": "2026-09-25T23:00:37.416Z",
+    "updatedAt": "2026-09-25T23:00:37.416Z",
+    "vessels": [
+      {
+        "id": "8tqqse7svuvmuhkdprc",
+        "name": "TB. MAJU DAYA 59",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Suryono Pku",
+    "rawInput": "{\"Nama Kapal\":\"TB. MAJU DAYA 59\",\"Owner\":\"Suryono Pku\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "bqi7rx56wlumuhkdprc",
+    "no": 34,
+    "createdAt": "2026-09-25T23:00:37.416Z",
+    "updatedAt": "2026-09-25T23:00:37.416Z",
+    "vessels": [
+      {
+        "id": "u2bxa429mvfmuhkdprc",
+        "name": "TB. ERINA 2032",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Wendi Bojonegara",
+    "rawInput": "{\"Nama Kapal\":\"TB. ERINA 2032\",\"Owner\":\"Wendi Bojonegara\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "8hxubx8s2agmuhkdprd",
+    "no": 35,
+    "createdAt": "2026-09-25T23:00:37.417Z",
+    "updatedAt": "2026-09-25T23:00:37.417Z",
+    "vessels": [
+      {
+        "id": "is6gtbdpk3qmuhkdprd",
+        "name": "TB WARRIOR 03",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Deni JKT",
+    "nominal": 200000,
+    "rawInput": "{\"Nama Kapal\":\"TB WARRIOR 03\",\"Owner\":\"Deni JKT\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"200,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "ze1xrbknffmuhkdprd",
+    "no": 36,
+    "createdAt": "2026-09-25T23:00:37.417Z",
+    "updatedAt": "2026-09-25T23:00:37.417Z",
+    "vessels": [
+      {
+        "id": "kd8sxulwn9muhkdprd",
+        "name": "TB. Kendrick Star 19",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Sukri",
+    "rawInput": "{\"Nama Kapal\":\"TB. Kendrick Star 19\",\"Owner\":\"Sukri\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "nczjvw82p3kmuhkdprd",
+    "no": 37,
+    "createdAt": "2026-09-25T23:00:37.417Z",
+    "updatedAt": "2026-09-25T23:00:37.417Z",
+    "vessels": [
+      {
+        "id": "pf71bvhzoghmuhkdprd",
+        "name": "TB. MLB BANTAENG 232",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Lutfi Sby",
+    "rawInput": "{\"Nama Kapal\":\"TB. MLB BANTAENG 232\",\"Owner\":\"Lutfi Sby\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "zmmrxsnanrhmuhkdpre",
+    "no": 38,
+    "createdAt": "2026-09-25T23:00:37.418Z",
+    "updatedAt": "2026-09-25T23:00:37.418Z",
+    "vessels": [
+      {
+        "id": "mn8h8kdh8womuhkdpre",
+        "name": "TB. SRIWIJAYA 02",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Parmanto Plg",
+    "rawInput": "{\"Nama Kapal\":\"TB. SRIWIJAYA 02\",\"Owner\":\"Parmanto Plg\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "t6r8sh8iolmuhkdpre",
+    "no": 39,
+    "createdAt": "2026-09-25T23:00:37.418Z",
+    "updatedAt": "2026-09-25T23:00:37.418Z",
+    "vessels": [
+      {
+        "id": "fvzl89swwsvmuhkdpre",
+        "name": "TB. KARYA PACIFIC 2278",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Tony JKT",
+    "rawInput": "{\"Nama Kapal\":\"TB. KARYA PACIFIC 2278\",\"Owner\":\"Tony JKT\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "3m2g5v9c5x8muhkdprf",
+    "no": 40,
+    "createdAt": "2026-09-25T23:00:37.419Z",
+    "updatedAt": "2026-09-25T23:00:37.419Z",
+    "vessels": [
+      {
+        "id": "b3kwu94i8yemuhkdprf",
+        "name": "MT. PETRO OCEAN XXIII"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Anto JKT",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"MT. PETRO OCEAN XXIII\",\"Owner\":\"Anto JKT\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "yv62jveum9muhkdprf",
+    "no": 41,
+    "createdAt": "2026-09-25T23:00:37.419Z",
+    "updatedAt": "2026-09-25T23:00:37.419Z",
+    "vessels": [
+      {
+        "id": "qhsdpdsh5scmuhkdprf",
+        "name": "TB. HEKTOR",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Darwis JKT",
+    "nominal": 1000000,
+    "rawInput": "{\"Nama Kapal\":\"TB. HEKTOR\",\"Owner\":\"Darwis JKT\",\"Transfer\":\"Sudah Transfer\",\"Nominal\":\"1,000,000\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "t0f5tg059pemuhkdprf",
+    "no": 42,
+    "createdAt": "2026-09-25T23:00:37.419Z",
+    "updatedAt": "2026-09-25T23:00:37.419Z",
+    "vessels": [
+      {
+        "id": "ur2mn1noy6omuhkdprf",
+        "name": "TB. ASGAR 32001",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Bu Devi Btm",
+    "rawInput": "{\"Nama Kapal\":\"TB. ASGAR 32001\",\"Owner\":\"Bu Devi Btm\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "fmm32gwzl3muhkdprg",
+    "no": 43,
+    "createdAt": "2026-09-25T23:00:37.420Z",
+    "updatedAt": "2026-09-25T23:00:37.420Z",
+    "vessels": [
+      {
+        "id": "y8nuj42irwomuhkdprg",
+        "name": "TB .NUSA XXXV 2024",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Yonam Banjarmasin",
+    "rawInput": "{\"Nama Kapal\":\"TB .NUSA XXXV 2024\",\"Owner\":\"Yonam Banjarmasin\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "4l6gt04igykmuhkdprg",
+    "no": 44,
+    "createdAt": "2026-09-25T23:00:37.420Z",
+    "updatedAt": "2026-09-25T23:00:37.420Z",
+    "vessels": [
+      {
+        "id": "1s8w0quaymemuhkdprg",
+        "name": "TB. JOHAN JAYA 117",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Irwan JKT",
+    "rawInput": "{\"Nama Kapal\":\"TB. JOHAN JAYA 117\",\"Owner\":\"Irwan JKT\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "qkkabf7hokmuhkdprh",
+    "no": 45,
+    "createdAt": "2026-09-25T23:00:37.421Z",
+    "updatedAt": "2026-09-25T23:00:37.421Z",
+    "vessels": [
+      {
+        "id": "j346asw1akrmuhkdprh",
+        "name": "TB. ARMANDO 18",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Heri Samuel Jambi",
+    "rawInput": "{\"Nama Kapal\":\"TB. ARMANDO 18\",\"Owner\":\"Heri Samuel Jambi\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "xad409fczfmmuhkdprh",
+    "no": 46,
+    "createdAt": "2026-09-25T23:00:37.421Z",
+    "updatedAt": "2026-09-25T23:00:37.421Z",
+    "vessels": [
+      {
+        "id": "2hbhv0awdnkmuhkdprh",
+        "name": "TB. ERINA 2032",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Wendi Bojonegara",
+    "rawInput": "{\"Nama Kapal\":\"TB. ERINA 2032\",\"Owner\":\"Wendi Bojonegara\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "2umi3of0cfdmuhkdprh",
+    "no": 47,
+    "createdAt": "2026-09-25T23:00:37.421Z",
+    "updatedAt": "2026-09-25T23:00:37.421Z",
+    "vessels": [
+      {
+        "id": "di1vuujeq3dmuhkdprh",
+        "name": "TB. OPL 1",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Ahmad Bojo",
+    "rawInput": "{\"Nama Kapal\":\"TB. OPL 1\",\"Owner\":\"Ahmad Bojo\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "g403iqd1jmsmuhkdpri",
+    "no": 48,
+    "createdAt": "2026-09-25T23:00:37.422Z",
+    "updatedAt": "2026-09-25T23:00:37.422Z",
+    "vessels": [
+      {
+        "id": "1t3vbd1xal4muhkdpri",
+        "name": "LCT. SS AS 57"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Siagian JKT",
+    "rawInput": "{\"Nama Kapal\":\"LCT. SS AS 57\",\"Owner\":\"Siagian JKT\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  },
+  {
+    "id": "tts8zz23a9hmuhkdpri",
+    "no": 49,
+    "createdAt": "2026-09-25T23:00:37.422Z",
+    "updatedAt": "2026-09-25T23:00:37.422Z",
+    "vessels": [
+      {
+        "id": "nr3f2f9el9amuhkdpri",
+        "name": "TB. UNITED 2017",
+        "type": "TB"
+      }
+    ],
+    "posisi": "-",
+    "destination": "",
+    "cargo": "",
+    "owner": "Capt Dino Jkt",
+    "rawInput": "{\"Nama Kapal\":\"TB. UNITED 2017\",\"Owner\":\"Capt Dino Jkt\",\"Transfer\":\"Belum Transfer\",\"Nominal\":\"\"}",
+    "opsId": "i419smnsmphmuhkacy4",
+    "opsName": "Ops. Trisula Jaya - 26"
+  }
+]
