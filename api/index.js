@@ -664,9 +664,25 @@ module.exports = async (req, res) => {
     // Authentication is stored in Neon. On a fresh database, create the auth
     // tables and seed the configured administrator account exactly once.
     await ensureAuthDatabase();
+    const bootstrapUsername = String(process.env.DEFAULT_ADMIN_USERNAME || 'kujang642').trim();
+    const bootstrapPassword = String(process.env.DEFAULT_ADMIN_PASSWORD || 'Kujang642Satkat1#');
     let user = await findUserByUsername(username);
-    if (!user && username === String(process.env.DEFAULT_ADMIN_USERNAME || 'kujang642').trim()) {
-      user = await ensureDefaultUser();
+
+    // Bootstrap/recovery for the configured administrator. This is important
+    // for databases created by older TERREA versions where the user row may
+    // already exist with an old/incompatible password hash. The configured
+    // environment credentials are authoritative for this administrator.
+    if (username === bootstrapUsername && password === bootstrapPassword) {
+      if (!user) {
+        user = await ensureDefaultUser();
+      } else if (!verifyPassword(password, user.password)) {
+        const crypto = require('crypto');
+        const salt = crypto.randomBytes(16).toString('hex');
+        const derived = crypto.scryptSync(password, salt, 64);
+        const passwordHash = `scrypt$${salt}$${derived.toString('hex')}`;
+        const repaired = await sql`UPDATE "user" SET password=${passwordHash}, "updatedAt"=NOW() WHERE id=${Number(user.id)} RETURNING id, username, password`;
+        if (repaired.length) user = repaired[0];
+      }
     }
 
     if (!user || !verifyPassword(password, user.password)) {

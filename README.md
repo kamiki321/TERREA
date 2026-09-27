@@ -46,3 +46,14 @@ Jika environment variables admin tidak diubah:
 ## v7 deployment fix
 
 The Neon driver is imported with a top-level static `require()` in `api/index.js` so Vercel's Node bundler can detect and include `@neondatabase/serverless`. The dependency is pinned to 1.1.0 instead of `latest`.
+
+
+## v8.0.0 LOGIN FIX
+
+- Login backend uses POST `/api/auth-login`. Opening this URL directly in a browser uses GET and intentionally returns `405 Method not allowed`; this is normal and does not indicate a login failure.
+- The configured administrator credentials are authoritative. If an older TERREA database already contains `kujang642` with an old/incompatible password hash, a successful login with the configured bootstrap password repairs the hash automatically.
+- Default bootstrap credentials when environment variables are omitted:
+  - Username: `kujang642`
+  - Password: `Kujang642Satkat1#`
+- If `DEFAULT_ADMIN_USERNAME` or `DEFAULT_ADMIN_PASSWORD` is present in Vercel, those values override the defaults.
+- Frontend login uses POST, same-origin credentials, stores only the short-lived access token in sessionStorage, and relies on the HttpOnly refresh cookie for refresh.

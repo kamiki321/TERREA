@@ -58,3 +58,13 @@ The final source was syntax-checked and the authentication flow was smoke-tested
 - old refresh-token reuse rejected with HTTP 401
 
 The smoke test does not replace a live Neon/Vercel test; the final live test must use your Vercel Environment Variables.
+
+
+## Login v8 verification
+1. Vercel Root Directory must be the project root containing `package.json`, `vercel.json`, `api/index.js`, and `index.html`.
+2. Set `DATABASE_URL` to the Neon connection string.
+3. Set `AUTH_JWT_SECRET` to at least 32 characters.
+4. Optional: set `DEFAULT_ADMIN_USERNAME` and `DEFAULT_ADMIN_PASSWORD`. If omitted, defaults are `kujang642` / `Kujang642Satkat1#`.
+5. Redeploy without build cache after changing environment variables.
+6. Do not test login by navigating to `/api/auth-login` in the address bar; that sends GET and should return 405. Test from the TERREA login form, which sends POST.
+7. If an old `user` row exists, v8 repairs the configured administrator password hash when the configured username/password are used.
