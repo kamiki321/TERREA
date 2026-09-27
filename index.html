@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>index.html</title>
+<title>Terrea Hailing Log</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -73,7 +73,7 @@
 <div id="authScreen">
   <div class="login-card">
     <div class="login-logo">⚓</div>
-    <div style="text-align:center;font-size:21px;font-weight:800;letter-spacing:.02em;">KRI KUJANG</div>
+    <div style="text-align:center;font-size:21px;font-weight:800;letter-spacing:.02em;">TERREA</div>
     <div style="text-align:center;font-size:11px;color:var(--gray);letter-spacing:.12em;margin-top:3px;margin-bottom:24px;">HAILING LOG — LOGIN</div>
     <form onsubmit="event.preventDefault();loginUser();">
       <label style="font-size:12px;font-weight:700;">Username</label>
@@ -94,7 +94,7 @@
   <div style="max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
     <div style="display:flex;align-items:center;gap:10px;">
       <span style="font-size:24px;">⚓</span>
-      <div><div style="font-weight:800;font-size:16px;letter-spacing:.04em;">KRI KUJANG</div>
+      <div><div style="font-weight:800;font-size:16px;letter-spacing:.04em;">TERREA</div>
       <div style="font-size:10.5px;color:#a9b6d3;letter-spacing:.08em;">HAILING LOG</div></div>
     </div>
     <nav style="display:flex;gap:4px;overflow-x:auto;" id="nav"></nav>
@@ -117,7 +117,7 @@ const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
 const API_BASE='/api';
 const recordApiPath=(id)=>`/record?id=${encodeURIComponent(id)}`;
 const operationApiPath=(id)=>`/operation?id=${encodeURIComponent(id)}`;
-let accessToken = sessionStorage.getItem('kujang_access_token') || '';
+let accessToken = sessionStorage.getItem('terrea_access_token') || '';
 let currentUser = null;
 let refreshPromise = null;
 async function refreshAccessToken(){
@@ -125,9 +125,9 @@ async function refreshAccessToken(){
   refreshPromise=(async()=>{
     const res=await fetch(API_BASE+'/auth-refresh',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'}});
     const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(_){}
-    if(!res.ok){ accessToken=''; sessionStorage.removeItem('kujang_access_token'); throw new Error(data?.error||`HTTP ${res.status}`); }
+    if(!res.ok){ accessToken=''; sessionStorage.removeItem('terrea_access_token'); throw new Error(data?.error||`HTTP ${res.status}`); }
     accessToken=data.accessToken||'';
-    if(accessToken) sessionStorage.setItem('kujang_access_token',accessToken);
+    if(accessToken) sessionStorage.setItem('terrea_access_token',accessToken);
     currentUser=data.user||currentUser;
     updateUserBadge();
     return accessToken;
@@ -139,7 +139,7 @@ function updateUserBadge(){
   if(el) el.textContent=currentUser?.username ? '👤 '+currentUser.username : '';
 }
 function handleAuthExpired(){
-  accessToken=''; currentUser=null; sessionStorage.removeItem('kujang_access_token');
+  accessToken=''; currentUser=null; sessionStorage.removeItem('terrea_access_token');
   const h=document.getElementById('appHeader'); if(h) h.style.display='none';
   const a=document.getElementById('authScreen'); if(a) a.style.display='flex';
 }
@@ -185,19 +185,20 @@ async function loginUser(){
     const res=await fetch(API_BASE+'/auth-login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
     const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(_){}
     if(!res.ok) throw new Error(data?.error||`HTTP ${res.status}`);
-    accessToken=data.accessToken; currentUser=data.user; sessionStorage.setItem('kujang_access_token',accessToken);
+    accessToken=data.accessToken; currentUser=data.user; sessionStorage.setItem('terrea_access_token',accessToken);
     const a=document.getElementById('authScreen'); const h=document.getElementById('appHeader'); if(a) a.style.display='none'; if(h) h.style.display='block';
     updateUserBadge();
     await bootstrapData();
     showResultDialog('LOGIN BERHASIL','SELAMAT DATANG, '+currentUser.username,true);
   }catch(e){
-    if(err){err.textContent='Username atau password salah.';err.style.display='block';}
-    showResultDialog('Login gagal','Password atau username salah',false);
+    const message=e?.message||'Terjadi kesalahan pada server.';
+    if(err){err.textContent=message;err.style.display='block';}
+    showResultDialog('Login gagal',message,false);
   }finally{ if(btn){btn.disabled=false;btn.textContent='Masuk';} }
 }
 async function logoutUser(){
   try{ await fetch(API_BASE+'/auth-logout',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',...(accessToken?{Authorization:'Bearer '+accessToken}:{})}}); }catch(_){}
-  accessToken=''; currentUser=null; sessionStorage.removeItem('kujang_access_token');
+  accessToken=''; currentUser=null; sessionStorage.removeItem('terrea_access_token');
   const h=document.getElementById('appHeader'); if(h) h.style.display='none';
   const a=document.getElementById('authScreen'); if(a) a.style.display='flex';
   const u=document.getElementById('loginUsername'); const p=document.getElementById('loginPassword'); if(u) u.value=''; if(p) p.value=''; validateLoginPassword();
@@ -1125,7 +1126,7 @@ async function offerDownload(filename, blob){
 }
 function exportJSON(){
   const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});
-  offerDownload('kri-kujang-backup-'+Date.now()+'.json', blob);
+  offerDownload('terrea-backup-'+Date.now()+'.json', blob);
 }
 function handleImportFile(ev){
   const file=ev.target.files[0]; if(!file) return;
@@ -1148,7 +1149,7 @@ async function exportExcel(){
     const ws=XLSX.utils.json_to_sheet(rows); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Hailing');
     const arr=XLSX.write(wb,{bookType:'xlsx',type:'array'});
     const blob=new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    await offerDownload('kri-kujang-hailing'+opsFileSuffix()+'-'+Date.now()+'.xlsx', blob);
+    await offerDownload('terrea-hailing'+opsFileSuffix()+'-'+Date.now()+'.xlsx', blob);
   }catch(e){ toast('⚠ Gagal mengekspor Excel.','warn'); }
 }
 function opsFileSuffix(){
@@ -1166,15 +1167,15 @@ async function exportPDF(){
     const list=filteredRecords();
     const { jsPDF } = window.jspdf;
     const doc=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
-    doc.setFontSize(14); doc.text('KRI KUJANG',40,32);
-    doc.setFontSize(10); doc.text('DATA KAPAL — KRI KUJANG HAILING',40,48);
+    doc.setFontSize(14); doc.text('TERREA',40,32);
+    doc.setFontSize(10); doc.text('DATA KAPAL — TERREA HAILING',40,48);
     doc.text('Operasi: '+opsContextLabel(),40,62);
     doc.text('Exported: '+new Date().toLocaleString('id-ID'),40,76);
     const cols=COLS.filter(c=>visibleColumns.includes(c));
     const body=list.map((r,i)=>cols.map(c=>COL_VALUE[c](r,i)));
     doc.autoTable({ head:[cols.map(c=>COL_LABELS[c])], body, startY:88, styles:{fontSize:6,cellWidth:'wrap'}, headStyles:{fillColor:[11,30,61]}, theme:'grid' });
     const blob=doc.output('blob');
-    await offerDownload('kri-kujang-hailing'+opsFileSuffix()+'-'+Date.now()+'.pdf', blob);
+    await offerDownload('terrea-hailing'+opsFileSuffix()+'-'+Date.now()+'.pdf', blob);
   }catch(e){ toast('⚠ Gagal membuat PDF.','warn'); }
 }
 

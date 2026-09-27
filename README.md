@@ -1,4 +1,4 @@
-# KRI KUJANG Hailing Log — FINAL Vercel Single Function — LOGIN FIX v3.2.0
+# Terrea Hailing Log — FINAL Vercel Single Function — LOGIN FIX v3.3.0
 
 This package contains exactly one API Serverless Function: `api/index.js`. The complete backend is bundled inside that file.
 
@@ -20,3 +20,8 @@ The previous build could return HTTP 500 during `/api/auth-login` when `AUTH_JWT
 
 ## Login v3.2.0 fix
 The login endpoint no longer calls the full application initialization/seed routine. It initializes only the authentication tables (`user` and `user_sessions`). This prevents unrelated hailing/master-data initialization errors from causing `/api/auth-login` to return HTTP 500. The login query also reads only the authentication columns it actually needs. Refresh, logout, and auth-me use the same auth-only initialization path.
+
+
+## v3.3.0 login fix
+- CORS headers are applied directly inside route handlers; no route depends on a `cors()` imported helper.
+- Login UI now displays the actual API error returned by the server instead of masking every error as a wrong username/password.
