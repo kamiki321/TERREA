@@ -617,7 +617,7 @@ module.exports = {
 };
 
 __modules["auth-login"] = function(module, exports, require) {
-const { sendJson, body } = require('./_lib');
+const { body } = require('./_lib');
 const { validatePassword, passwordRuleMessage, issueSession, setRefreshCookie, ensureAuthDatabase, ensureDefaultUser, findUserByUsername, verifyPassword } = require('./_auth');
 
 module.exports = async (req, res) => {
@@ -661,7 +661,7 @@ module.exports = async (req, res) => {
 };
 
 __modules["auth-refresh"] = function(module, exports, require) {
-const { sendJson } = require('./_lib');
+
 const { parseCookies, rotateRefreshSession, setRefreshCookie, clearRefreshCookie } = require('./_auth');
 module.exports = async (req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -684,7 +684,7 @@ module.exports = async (req,res)=>{
 };
 
 __modules["auth-logout"] = function(module, exports, require) {
-const { sendJson } = require('./_lib');
+
 const { parseCookies, clearRefreshCookie, revokeRefreshSession } = require('./_auth');
 module.exports=async(req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -703,7 +703,7 @@ module.exports=async(req,res)=>{
 };
 
 __modules["auth-me"] = function(module, exports, require) {
-const { sendJson } = require('./_lib');
+
 const { requireAuth } = require('./_auth');
 module.exports=async(req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -722,13 +722,13 @@ module.exports=async(req,res)=>{
 };
 
 __modules["health"] = function(module, exports, require) {
-const { sql, sendJson, ensureInitialized } = require('./_lib');
+const { sql, ensureInitialized } = require('./_lib');
 module.exports = async (req,res)=>{ res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); if(req.method==='OPTIONS')return res.status(204).end(); try{await ensureInitialized(); const c=await sql`SELECT COUNT(*)::int AS count FROM hailing_records`; const t=await sql`SELECT NOW() AS now`; return sendJson(res,200,{ok:true,database:'neon-postgresql',records:c[0].count,dbTime:t[0].now});}catch(e){console.error(e);return sendJson(res,500,{ok:false,error:e.message});} };
 
 };
 
 __modules["import"] = function(module, exports, require) {
-const { sendJson, body, ensureInitialized, allRecords, sql } = require('./_lib');
+const { body, ensureInitialized, allRecords, sql } = require('./_lib');
 const { requireAuth } = require('./_auth');
 
 function cleanString(v) {
@@ -885,7 +885,7 @@ module.exports = async (req, res) => {
 };
 
 __modules["record"] = function(module, exports, require) {
-const { sendJson, body, ensureInitialized, getRecord, saveRecord, sql } = require('./_lib');
+const { body, ensureInitialized, getRecord, saveRecord, sql } = require('./_lib');
 const { requireAuth } = require('./_auth');
 
 module.exports = async (req, res) => {
@@ -931,7 +931,7 @@ module.exports = async (req, res) => {
 };
 
 __modules["operation"] = function(module, exports, require) {
-const { sendJson, ensureInitialized, sql } = require('./_lib');
+const { ensureInitialized, sql } = require('./_lib');
 const { requireAuth } = require('./_auth');
 
 module.exports = async (req, res) => {
@@ -961,7 +961,7 @@ module.exports = async (req, res) => {
 };
 
 __modules["records/index"] = function(module, exports, require) {
-const { sendJson, body, ensureInitialized, allRecords, saveRecord } = require('../_lib');
+const { body, ensureInitialized, allRecords, saveRecord } = require('../_lib');
 const { requireAuth } = require('../_auth');
 module.exports = async (req,res)=>{res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');if(req.method==='OPTIONS')return res.status(204).end();try{await ensureInitialized();
     await requireAuth(req);if(req.method==='GET')return sendJson(res,200,await allRecords());if(req.method==='POST')return sendJson(res,201,await saveRecord(await body(req)));return sendJson(res,405,{error:'Method not allowed'});}catch(e){console.error(e);return sendJson(res,e.status||500,{error:e.message||'Server error'});}};
@@ -969,7 +969,7 @@ module.exports = async (req,res)=>{res.setHeader('Access-Control-Allow-Origin', 
 };
 
 __modules["records/bulk-delete"] = function(module, exports, require) {
-const { sendJson, body, ensureInitialized, sql } = require('../_lib');
+const { body, ensureInitialized, sql } = require('../_lib');
 const { requireAuth } = require('../_auth');
 module.exports = async (req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -997,7 +997,7 @@ module.exports = async (req,res)=>{
 };
 
 __modules["operations/index"] = function(module, exports, require) {
-const { sendJson, body, ensureInitialized, sql, makeId, now } = require('../_lib');
+const { body, ensureInitialized, sql, makeId, now } = require('../_lib');
 const { requireAuth } = require('../_auth');
 module.exports = async (req,res)=>{res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');if(req.method==='OPTIONS')return res.status(204).end();try{await ensureInitialized();
     await requireAuth(req);if(req.method==='GET'){const rows=await sql`SELECT id,name,created_at AS "createdAt",updated_at AS "updatedAt" FROM operations ORDER BY created_at ASC`;return sendJson(res,200,rows);}if(req.method==='POST'){const b=await body(req);const name=String(b.name||'').trim();if(!name)return sendJson(res,400,{error:'Nama operasi wajib diisi'});const id=b.id||makeId(),t=now();await sql`INSERT INTO operations(id,name,created_at,updated_at) VALUES(${id},${name},${t},${t}) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,updated_at=EXCLUDED.updated_at`;return sendJson(res,201,{id,name,createdAt:t,updatedAt:t});}return sendJson(res,405,{error:'Method not allowed'});}catch(e){console.error(e);return sendJson(res,e.status||500,{error:e.message||'Server error'});}};
