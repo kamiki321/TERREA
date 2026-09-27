@@ -42,3 +42,7 @@ Jika environment variables admin tidak diubah:
 ## Vercel
 
 `vercel.json` mengarahkan semua `/api/*` ke `api/index.js`, sehingga deployment tetap hanya memiliki satu Serverless Function.
+
+## v7 deployment fix
+
+The Neon driver is imported with a top-level static `require()` in `api/index.js` so Vercel's Node bundler can detect and include `@neondatabase/serverless`. The dependency is pinned to 1.1.0 instead of `latest`.

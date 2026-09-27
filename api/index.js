@@ -1,4 +1,8 @@
 // Terrea Hailing Log - Vercel single-function bundle
+// IMPORTANT: keep the Neon driver as a TOP-LEVEL static require so Vercel's
+// Node bundler detects and includes the dependency. A require hidden inside
+// the custom module-loader can be treated as a runtime/dynamic dependency.
+const { neon: __neon } = require('@neondatabase/serverless');
 // COMPLETE API BACKEND IS BUNDLED INTO THIS FILE.
 // Vercel should detect exactly ONE Serverless Function: /api/index.js.
 
@@ -54,13 +58,12 @@ function __load(id) {
 }
 
 __modules["_db"] = function(module, exports, require) {
-const { neon } = require('@neondatabase/serverless');
 let sqlClient = null;
 function getSql() {
   if (sqlClient) return sqlClient;
   const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.NEON_DATABASE_URL;
   if (!databaseUrl) throw new Error('Database URL belum dikonfigurasi. Tambahkan DATABASE_URL di Vercel Environment Variables.');
-  sqlClient = neon(databaseUrl);
+  sqlClient = __neon(databaseUrl);
   return sqlClient;
 }
 // Lazy SQL client: authentication can work without touching Neon.
