@@ -301,8 +301,10 @@ let initPromise = null;
 const now = () => new Date().toISOString();
 const makeId = () => crypto.randomBytes(9).toString('base64url') + Date.now().toString(36);
 
-function json(res, status, payload) {
-  return res.status(status).json(payload);
+function sendJson(res, status, payload) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  return res.end(JSON.stringify(payload));
 }
 
 function cors(res) {
@@ -563,21 +565,21 @@ async function saveRecord(input, id = null) {
 }
 
 module.exports = {
-  sql, now, makeId, json, cors, body, ensureInitialized,
+  sql, now, makeId, sendJson, cors, body, ensureInitialized,
   saveRecord, getRecord, allRecords
 };
 
 };
 
 __modules["auth-login"] = function(module, exports, require) {
-const { json, body } = require('./_lib');
+const { sendJson, body } = require('./_lib');
 const { sql } = require('./_db');
 const { validatePassword, passwordRuleMessage, verifyPassword, issueSession, setRefreshCookie, ensureAuthDatabase } = require('./_auth');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
 
   try {
     // IMPORTANT: login must initialize ONLY the authentication schema.
@@ -588,24 +590,24 @@ module.exports = async (req, res) => {
     const b = await body(req);
     const username = String(b.username || '').trim();
     const password = typeof b.password === 'string' ? b.password : '';
-    if (!username || !password) return json(res, 400, { error: 'Username dan password wajib diisi.' });
-    if (!validatePassword(password)) return json(res, 400, { error: passwordRuleMessage(), code: 'PASSWORD_FORMAT_INVALID' });
+    if (!username || !password) return sendJson(res, 400, { error: 'Username dan password wajib diisi.' });
+    if (!validatePassword(password)) return sendJson(res, 400, { error: passwordRuleMessage(), code: 'PASSWORD_FORMAT_INVALID' });
 
     const rows = await sql`SELECT id,username,password FROM "user" WHERE username=${username} LIMIT 1`;
     if (!rows.length) {
-      return json(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
+      return sendJson(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
     }
     if (!verifyPassword(password, rows[0].password)) {
-      return json(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
+      return sendJson(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
     }
 
     const user = { id: rows[0].id, username: rows[0].username };
     const session = await issueSession(user);
     setRefreshCookie(res, session.refreshToken);
-    return json(res, 200, { ok: true, accessToken: session.accessToken, user });
+    return sendJson(res, 200, { ok: true, accessToken: session.accessToken, user });
   } catch (e) {
     console.error('auth login error:', e);
-    return json(res, e.status || 500, {
+    return sendJson(res, e.status || 500, {
       error: e.message || 'Login gagal.',
       code: e.code || 'AUTH_LOGIN_ERROR'
     });
@@ -615,30 +617,30 @@ module.exports = async (req, res) => {
 };
 
 __modules["auth-refresh"] = function(module, exports, require) {
-const { json } = require('./_lib');
+const { sendJson } = require('./_lib');
 const { parseCookies, rotateRefreshSession, setRefreshCookie, clearRefreshCookie, ensureAuthDatabase } = require('./_auth');
 module.exports = async (req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if(req.method==='OPTIONS') return res.status(204).end();
   try{
     await ensureAuthDatabase();
-    if(req.method!=='POST') return json(res,405,{error:'Method not allowed'});
+    if(req.method!=='POST') return sendJson(res,405,{error:'Method not allowed'});
     const token=parseCookies(req).terrea_refresh_token;
-    if(!token){ clearRefreshCookie(res); return json(res,401,{error:'Refresh token tidak ditemukan.'}); }
+    if(!token){ clearRefreshCookie(res); return sendJson(res,401,{error:'Refresh token tidak ditemukan.'}); }
     const session=await rotateRefreshSession(token);
     setRefreshCookie(res,session.refreshToken);
     const user={id:session.userId,username:session.username};
-    return json(res,200,{ok:true,accessToken:session.accessToken,user});
+    return sendJson(res,200,{ok:true,accessToken:session.accessToken,user});
   }catch(e){
     clearRefreshCookie(res);
-    return json(res,e.status||401,{error:e.message||'Session tidak valid.'});
+    return sendJson(res,e.status||401,{error:e.message||'Session tidak valid.'});
   }
 };
 
 };
 
 __modules["auth-logout"] = function(module, exports, require) {
-const { json } = require('./_lib');
+const { sendJson } = require('./_lib');
 const { parseCookies, hashRefreshToken, clearRefreshCookie, ensureAuthDatabase } = require('./_auth');
 const { sql } = require('./_db');
 module.exports=async(req,res)=>{
@@ -646,45 +648,45 @@ module.exports=async(req,res)=>{
   if(req.method==='OPTIONS') return res.status(204).end();
   try{
     await ensureAuthDatabase();
-    if(req.method!=='POST') return json(res,405,{error:'Method not allowed'});
+    if(req.method!=='POST') return sendJson(res,405,{error:'Method not allowed'});
     const token=parseCookies(req).terrea_refresh_token;
     if(token){
       await sql`UPDATE user_sessions SET revoked_at=NOW() WHERE token_hash=${hashRefreshToken(token)} AND revoked_at IS NULL`;
     }
     clearRefreshCookie(res);
-    return json(res,200,{ok:true});
+    return sendJson(res,200,{ok:true});
   }catch(e){
     clearRefreshCookie(res);
-    return json(res,200,{ok:true});
+    return sendJson(res,200,{ok:true});
   }
 };
 
 };
 
 __modules["auth-me"] = function(module, exports, require) {
-const { json } = require('./_lib');
+const { sendJson } = require('./_lib');
 const { requireAuth, ensureAuthDatabase } = require('./_auth');
 module.exports=async(req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if(req.method==='OPTIONS') return res.status(204).end();
   try{
     await ensureAuthDatabase();
-    if(req.method!=='GET') return json(res,405,{error:'Method not allowed'});
+    if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
     const user=await requireAuth(req);
-    return json(res,200,{ok:true,user});
-  }catch(e){ return json(res,e.status||401,{error:e.message||'Unauthorized'}); }
+    return sendJson(res,200,{ok:true,user});
+  }catch(e){ return sendJson(res,e.status||401,{error:e.message||'Unauthorized'}); }
 };
 
 };
 
 __modules["health"] = function(module, exports, require) {
-const { sql, json, ensureInitialized } = require('./_lib');
-module.exports = async (req,res)=>{ res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); if(req.method==='OPTIONS')return res.status(204).end(); try{await ensureInitialized(); const c=await sql`SELECT COUNT(*)::int AS count FROM hailing_records`; const t=await sql`SELECT NOW() AS now`; return json(res,200,{ok:true,database:'neon-postgresql',records:c[0].count,dbTime:t[0].now});}catch(e){console.error(e);return json(res,500,{ok:false,error:e.message});} };
+const { sql, sendJson, ensureInitialized } = require('./_lib');
+module.exports = async (req,res)=>{ res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); if(req.method==='OPTIONS')return res.status(204).end(); try{await ensureInitialized(); const c=await sql`SELECT COUNT(*)::int AS count FROM hailing_records`; const t=await sql`SELECT NOW() AS now`; return sendJson(res,200,{ok:true,database:'neon-postgresql',records:c[0].count,dbTime:t[0].now});}catch(e){console.error(e);return sendJson(res,500,{ok:false,error:e.message});} };
 
 };
 
 __modules["import"] = function(module, exports, require) {
-const { json, body, ensureInitialized, allRecords, sql } = require('./_lib');
+const { sendJson, body, ensureInitialized, allRecords, sql } = require('./_lib');
 const { requireAuth } = require('./_auth');
 
 function cleanString(v) {
@@ -765,18 +767,18 @@ module.exports = async (req, res) => {
   try {
     await ensureInitialized();
     await requireAuth(req);
-    if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
+    if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
 
     const payloadBody = await body(req);
     if (!payloadBody || typeof payloadBody !== 'object') {
-      return json(res, 400, { error: 'Payload import tidak ditemukan atau bukan JSON object' });
+      return sendJson(res, 400, { error: 'Payload import tidak ditemukan atau bukan JSON object' });
     }
 
     const mode = payloadBody.mode || 'merge';
     const data = payloadBody.data;
-    if (!Array.isArray(data)) return json(res, 400, { error: 'Data import harus berupa array' });
-    if (!data.length) return json(res, 400, { error: 'Tidak ada data untuk diimpor' });
-    if (!['merge', 'replace'].includes(mode)) return json(res, 400, { error: 'Mode import tidak valid' });
+    if (!Array.isArray(data)) return sendJson(res, 400, { error: 'Data import harus berupa array' });
+    if (!data.length) return sendJson(res, 400, { error: 'Tidak ada data untuk diimpor' });
+    if (!['merge', 'replace'].includes(mode)) return sendJson(res, 400, { error: 'Mode import tidak valid' });
 
     const payload = makeImportPayload(data);
 
@@ -825,7 +827,7 @@ module.exports = async (req, res) => {
           hailing_id=EXCLUDED.hailing_id,name=EXCLUDED.name,type=EXCLUDED.type,gt=EXCLUDED.gt`;
     }
 
-    return json(res, 200, {
+    return sendJson(res, 200, {
       ok: true,
       count: data.length,
       mode,
@@ -834,14 +836,14 @@ module.exports = async (req, res) => {
   } catch (e) {
     console.error('import error', e);
     const status = e?.code === 'INVALID_JSON' ? 400 : 500;
-    return json(res, status, { error: e.message || 'Server error' });
+    return sendJson(res, status, { error: e.message || 'Server error' });
   }
 };
 
 };
 
 __modules["record"] = function(module, exports, require) {
-const { json, body, ensureInitialized, getRecord, saveRecord, sql } = require('./_lib');
+const { sendJson, body, ensureInitialized, getRecord, saveRecord, sql } = require('./_lib');
 const { requireAuth } = require('./_auth');
 
 module.exports = async (req, res) => {
@@ -851,21 +853,21 @@ module.exports = async (req, res) => {
     await ensureInitialized();
     await requireAuth(req);
     const id = String(req.query?.id || '').trim();
-    if (!id) return json(res, 400, { error: 'ID data hailing wajib diisi' });
+    if (!id) return sendJson(res, 400, { error: 'ID data hailing wajib diisi' });
 
     if (req.method === 'GET') {
       const record = await getRecord(id);
-      return record ? json(res, 200, record) : json(res, 404, { error: 'Record tidak ditemukan' });
+      return record ? sendJson(res, 200, record) : sendJson(res, 404, { error: 'Record tidak ditemukan' });
     }
 
     if (req.method === 'PUT') {
-      if (!(await getRecord(id))) return json(res, 404, { error: 'Record tidak ditemukan' });
-      return json(res, 200, await saveRecord(await body(req), id));
+      if (!(await getRecord(id))) return sendJson(res, 404, { error: 'Record tidak ditemukan' });
+      return sendJson(res, 200, await saveRecord(await body(req), id));
     }
 
     if (req.method === 'DELETE') {
       const existing = await getRecord(id);
-      if (!existing) return json(res, 404, { error: 'Record tidak ditemukan' });
+      if (!existing) return sendJson(res, 404, { error: 'Record tidak ditemukan' });
       // Explicit child delete keeps this working even when an older Neon schema
       // was created without ON DELETE CASCADE.
       await sql`DELETE FROM vessels WHERE hailing_id=${id}`;
@@ -873,21 +875,21 @@ module.exports = async (req, res) => {
       // DELETE results without a reliable `count` property even when the row
       // was actually deleted. RETURNING gives us the authoritative result.
       const result = await sql`DELETE FROM hailing_records WHERE id=${id} RETURNING id`;
-      if (!result.length) return json(res, 404, { error: 'Record tidak ditemukan' });
-      return json(res, 200, { ok: true, id: result[0].id, deleted: 1 });
+      if (!result.length) return sendJson(res, 404, { error: 'Record tidak ditemukan' });
+      return sendJson(res, 200, { ok: true, id: result[0].id, deleted: 1 });
     }
 
-    return json(res, 405, { error: 'Method not allowed' });
+    return sendJson(res, 405, { error: 'Method not allowed' });
   } catch (e) {
     console.error('record route error', e);
-    return json(res, e.status || 500, { error: e.message || 'Server error' });
+    return sendJson(res, e.status || 500, { error: e.message || 'Server error' });
   }
 };
 
 };
 
 __modules["operation"] = function(module, exports, require) {
-const { json, ensureInitialized, sql } = require('./_lib');
+const { sendJson, ensureInitialized, sql } = require('./_lib');
 const { requireAuth } = require('./_auth');
 
 module.exports = async (req, res) => {
@@ -897,35 +899,35 @@ module.exports = async (req, res) => {
     await ensureInitialized();
     await requireAuth(req);
     const id = String(req.query?.id || '').trim();
-    if (!id) return json(res, 400, { error: 'ID operasi wajib diisi' });
-    if (req.method !== 'DELETE') return json(res, 405, { error: 'Method not allowed' });
+    if (!id) return sendJson(res, 400, { error: 'ID operasi wajib diisi' });
+    if (req.method !== 'DELETE') return sendJson(res, 405, { error: 'Method not allowed' });
 
     const existing = await sql`SELECT id FROM operations WHERE id=${id}`;
-    if (!existing.length) return json(res, 404, { error: 'Operasi tidak ditemukan' });
+    if (!existing.length) return sendJson(res, 404, { error: 'Operasi tidak ditemukan' });
 
     // Explicitly detach references first. This also fixes databases created
     // by older versions whose FK did not have ON DELETE SET NULL.
     await sql`UPDATE hailing_records SET ops_id=NULL, ops_name=NULL, updated_at=NOW() WHERE ops_id=${id}`;
     const result = await sql`DELETE FROM operations WHERE id=${id}`;
-    return json(res, 200, { ok: true, id, deleted: Number(result.count || 0) });
+    return sendJson(res, 200, { ok: true, id, deleted: Number(result.count || 0) });
   } catch (e) {
     console.error('operation route error', e);
-    return json(res, e.status || 500, { error: e.message || 'Server error' });
+    return sendJson(res, e.status || 500, { error: e.message || 'Server error' });
   }
 };
 
 };
 
 __modules["records/index"] = function(module, exports, require) {
-const { json, body, ensureInitialized, allRecords, saveRecord } = require('../_lib');
+const { sendJson, body, ensureInitialized, allRecords, saveRecord } = require('../_lib');
 const { requireAuth } = require('../_auth');
 module.exports = async (req,res)=>{res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');if(req.method==='OPTIONS')return res.status(204).end();try{await ensureInitialized();
-    await requireAuth(req);if(req.method==='GET')return json(res,200,await allRecords());if(req.method==='POST')return json(res,201,await saveRecord(await body(req)));return json(res,405,{error:'Method not allowed'});}catch(e){console.error(e);return json(res,e.status||500,{error:e.message||'Server error'});}};
+    await requireAuth(req);if(req.method==='GET')return sendJson(res,200,await allRecords());if(req.method==='POST')return sendJson(res,201,await saveRecord(await body(req)));return sendJson(res,405,{error:'Method not allowed'});}catch(e){console.error(e);return sendJson(res,e.status||500,{error:e.message||'Server error'});}};
 
 };
 
 __modules["records/bulk-delete"] = function(module, exports, require) {
-const { json, body, ensureInitialized, sql } = require('../_lib');
+const { sendJson, body, ensureInitialized, sql } = require('../_lib');
 const { requireAuth } = require('../_auth');
 module.exports = async (req,res)=>{
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -933,30 +935,30 @@ module.exports = async (req,res)=>{
   try{
     await ensureInitialized();
     await requireAuth(req);
-    if(req.method!=='POST') return json(res,405,{error:'Method not allowed'});
+    if(req.method!=='POST') return sendJson(res,405,{error:'Method not allowed'});
     const b=await body(req);
     const ids=Array.isArray(b.ids)?[...new Set(b.ids.map(String).filter(Boolean))]:[];
-    if(!ids.length) return json(res,400,{error:'Tidak ada ID yang dipilih'});
+    if(!ids.length) return sendJson(res,400,{error:'Tidak ada ID yang dipilih'});
     let deleted=0;
     for(const id of ids){
       await sql`DELETE FROM vessels WHERE hailing_id=${id}`;
       const r=await sql`DELETE FROM hailing_records WHERE id=${id}`;
       deleted+=Number(r.count||0);
     }
-    return json(res,200,{ok:true,deleted});
+    return sendJson(res,200,{ok:true,deleted});
   }catch(e){
     console.error(e);
-    return json(res,e.status||500,{error:e.message||'Server error'});
+    return sendJson(res,e.status||500,{error:e.message||'Server error'});
   }
 };
 
 };
 
 __modules["operations/index"] = function(module, exports, require) {
-const { json, body, ensureInitialized, sql, makeId, now } = require('../_lib');
+const { sendJson, body, ensureInitialized, sql, makeId, now } = require('../_lib');
 const { requireAuth } = require('../_auth');
 module.exports = async (req,res)=>{res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS'); res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');if(req.method==='OPTIONS')return res.status(204).end();try{await ensureInitialized();
-    await requireAuth(req);if(req.method==='GET'){const rows=await sql`SELECT id,name,created_at AS "createdAt",updated_at AS "updatedAt" FROM operations ORDER BY created_at ASC`;return json(res,200,rows);}if(req.method==='POST'){const b=await body(req);const name=String(b.name||'').trim();if(!name)return json(res,400,{error:'Nama operasi wajib diisi'});const id=b.id||makeId(),t=now();await sql`INSERT INTO operations(id,name,created_at,updated_at) VALUES(${id},${name},${t},${t}) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,updated_at=EXCLUDED.updated_at`;return json(res,201,{id,name,createdAt:t,updatedAt:t});}return json(res,405,{error:'Method not allowed'});}catch(e){console.error(e);return json(res,e.status||500,{error:e.message||'Server error'});}};
+    await requireAuth(req);if(req.method==='GET'){const rows=await sql`SELECT id,name,created_at AS "createdAt",updated_at AS "updatedAt" FROM operations ORDER BY created_at ASC`;return sendJson(res,200,rows);}if(req.method==='POST'){const b=await body(req);const name=String(b.name||'').trim();if(!name)return sendJson(res,400,{error:'Nama operasi wajib diisi'});const id=b.id||makeId(),t=now();await sql`INSERT INTO operations(id,name,created_at,updated_at) VALUES(${id},${name},${t},${t}) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,updated_at=EXCLUDED.updated_at`;return sendJson(res,201,{id,name,createdAt:t,updatedAt:t});}return sendJson(res,405,{error:'Method not allowed'});}catch(e){console.error(e);return sendJson(res,e.status||500,{error:e.message||'Server error'});}};
 
 };
 
@@ -1003,12 +1005,12 @@ module.exports = async function handler(req, res) {
   const params = getQuery(req);
   req.query = Object.fromEntries(params.entries());
   const moduleId = routes[pathname];
-  if (!moduleId) return res.status(404).json({ error: 'API endpoint tidak ditemukan', path: pathname });
+  if (!moduleId) return sendJson(res, 404, { error: 'API endpoint tidak ditemukan', path: pathname });
   try {
     const handler = __load(moduleId);
     return await handler(req, res);
   } catch (e) {
     console.error('API dispatcher error:', e);
-    return res.status(e?.status || 500).json({ error: e?.message || 'Server error' });
+    return sendJson(res, e?.status || 500, { error: e?.message || 'Server error' });
   }
 };
