@@ -16,6 +16,29 @@ function __normalize(parentId, request) {
   return stack.join('/');
 }
 
+// Compatibility helpers for route modules bundled into this single Vercel function.
+// All helpers resolve lazily to the bundled _lib module so route modules never
+// depend on missing imports or separate Vercel functions.
+function __apiLib() { return __load('_lib'); }
+function sendJson(res, status, payload) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  return res.end(JSON.stringify(payload));
+}
+function cors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+function body(req) { return __apiLib().body(req); }
+function ensureInitialized() { return __apiLib().ensureInitialized(); }
+function sql(strings, ...values) { return __apiLib().sql(strings, ...values); }
+function makeId() { return __apiLib().makeId(); }
+function now() { return __apiLib().now(); }
+function saveRecord(...args) { return __apiLib().saveRecord(...args); }
+function getRecord(...args) { return __apiLib().getRecord(...args); }
+function allRecords(...args) { return __apiLib().allRecords(...args); }
+
 function __load(id) {
   if (__cache[id]) return __cache[id].exports;
   const factory = __modules[id];
@@ -617,8 +640,9 @@ module.exports = {
 };
 
 __modules["auth-login"] = function(module, exports, require) {
-const { body } = require('./_lib');
-const { validatePassword, passwordRuleMessage, issueSession, setRefreshCookie, ensureAuthDatabase, ensureDefaultUser, findUserByUsername, verifyPassword } = require('./_auth');
+const { issueSession, setRefreshCookie, ensureAuthDatabase, ensureDefaultUser, findUserByUsername, verifyPassword } = require('./_auth');
+function validatePassword(password) { return typeof password === 'string' && /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password); }
+function passwordRuleMessage() { return 'Password minimal 8 karakter, mengandung 1 huruf uppercase, 1 angka, dan 1 karakter special.'; }
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -1056,6 +1080,9 @@ module.exports = async function handler(req, res) {
   const moduleId = routes[pathname];
   if (!moduleId) return sendJson(res, 404, { error: 'API endpoint tidak ditemukan', path: pathname });
   try {
+    if (typeof res.status !== 'function') res.status = (code) => { res.statusCode = code; return res; };
+    if (typeof res.json !== 'function') res.json = (payload) => sendJson(res, res.statusCode || 200, payload);
+    if (typeof res.send !== 'function') res.send = (payload) => { res.statusCode = res.statusCode || 200; res.end(typeof payload === 'string' ? payload : JSON.stringify(payload)); };
     const handler = __load(moduleId);
     return await handler(req, res);
   } catch (e) {
