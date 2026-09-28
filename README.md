@@ -60,7 +60,7 @@ The Neon driver is imported with a top-level static `require()` in `api/index.js
 
 
 ## v9 deployment hardening
-- Node runtime pinned to 20.x.
+- Node.js 24.x is selected through package.json; no runtime field is specified in vercel.json.
 - No Vercel CLI dependency is installed as an application dependency.
 - Production dependency is @neondatabase/serverless 1.1.0.
 - API remains one function at api/index.js.
