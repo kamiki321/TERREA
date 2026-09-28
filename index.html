@@ -117,47 +117,34 @@ const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
 const API_BASE='/api';
 const recordApiPath=(id)=>`/record?id=${encodeURIComponent(id)}`;
 const operationApiPath=(id)=>`/operation?id=${encodeURIComponent(id)}`;
-let accessToken = sessionStorage.getItem('terrea_access_token') || '';
+let authCredentials = null;
+try { authCredentials = JSON.parse(sessionStorage.getItem('terrea_auth') || 'null'); } catch (_) { authCredentials = null; }
 let currentUser = null;
-let refreshPromise = null;
-async function refreshAccessToken(){
-  if(refreshPromise) return refreshPromise;
-  refreshPromise=(async()=>{
-    const res=await fetch(API_BASE+'/auth-refresh',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'}});
-    const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(_){}
-    if(!res.ok){ accessToken=''; sessionStorage.removeItem('terrea_access_token'); throw new Error(data?.error||`HTTP ${res.status}`); }
-    accessToken=data.accessToken||'';
-    if(accessToken) sessionStorage.setItem('terrea_access_token',accessToken);
-    currentUser=data.user||currentUser;
-    updateUserBadge();
-    return accessToken;
-  })().finally(()=>{refreshPromise=null;});
-  return refreshPromise;
+function authHeader(){
+  if(!authCredentials?.username || !authCredentials?.password) return {};
+  const raw = `${authCredentials.username}:${authCredentials.password}`;
+  return {Authorization:'Basic '+btoa(unescape(encodeURIComponent(raw)))};
 }
 function updateUserBadge(){
   const el=document.getElementById('userBadge');
   if(el) el.textContent=currentUser?.username ? '👤 '+currentUser.username : '';
 }
 function handleAuthExpired(){
-  accessToken=''; currentUser=null; sessionStorage.removeItem('terrea_access_token');
+  authCredentials=null; currentUser=null; sessionStorage.removeItem('terrea_auth');
   const h=document.getElementById('appHeader'); if(h) h.style.display='none';
   const a=document.getElementById('authScreen'); if(a) a.style.display='flex';
 }
-async function apiFetch(path, options={}, retry=true){
+async function apiFetch(path, options={}){
   const isAuthPath=path.startsWith('/auth-');
   const headers={'Content-Type':'application/json',...(options.headers||{})};
-  if(accessToken) headers.Authorization='Bearer '+accessToken;
+  if(!isAuthPath) Object.assign(headers,authHeader());
   const res=await fetch(API_BASE+path,{credentials:'same-origin',...options,headers});
   const text=await res.text();
   let data=null; try{ data=text?JSON.parse(text):null; }catch(e){ data=null; }
-  if(res.status===401 && retry && !isAuthPath){
-    try{ await refreshAccessToken(); return apiFetch(path,options,false); }
-    catch(_){ handleAuthExpired(); }
-  }
+  if(res.status===401 && !isAuthPath){ handleAuthExpired(); }
   if(!res.ok) throw new Error(data?.error||`HTTP ${res.status}`);
   return data;
 }
-
 
 function passwordMeetsRule(value){ return /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(value||''); }
 function validateLoginPassword(){
@@ -179,13 +166,16 @@ async function loginUser(){
   const username=document.getElementById('loginUsername')?.value.trim()||''; const password=document.getElementById('loginPassword')?.value||''; const err=document.getElementById('loginError'); const btn=document.getElementById('loginButton');
   if(err){err.style.display='none';err.textContent='';}
   if(!username){ if(err){err.textContent='Username wajib diisi.';err.style.display='block';} return; }
+  if(!password){ if(err){err.textContent='Password wajib diisi.';err.style.display='block';} return; }
   if(!validateLoginPassword()) return;
   if(btn){btn.disabled=true;btn.textContent='Memproses...';}
   try{
-    const res=await fetch(API_BASE+'/auth-login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    const res=await fetch(API_BASE+'/auth-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
     const text=await res.text(); let data=null; try{data=text?JSON.parse(text):null;}catch(_){}
     if(!res.ok) throw new Error(data?.error||`HTTP ${res.status}`);
-    accessToken=data.accessToken; currentUser=data.user; sessionStorage.setItem('terrea_access_token',accessToken);
+    authCredentials={username,password};
+    currentUser=data.user;
+    sessionStorage.setItem('terrea_auth',JSON.stringify(authCredentials));
     const a=document.getElementById('authScreen'); const h=document.getElementById('appHeader'); if(a) a.style.display='none'; if(h) h.style.display='block';
     updateUserBadge();
     await bootstrapData();
@@ -197,17 +187,17 @@ async function loginUser(){
   }finally{ if(btn){btn.disabled=false;btn.textContent='Masuk';} }
 }
 async function logoutUser(){
-  try{ await fetch(API_BASE+'/auth-logout',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',...(accessToken?{Authorization:'Bearer '+accessToken}:{})}}); }catch(_){}
-  accessToken=''; currentUser=null; sessionStorage.removeItem('terrea_access_token');
+  try{ await fetch(API_BASE+'/auth-logout',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()}}); }catch(_){ }
+  authCredentials=null; currentUser=null; sessionStorage.removeItem('terrea_auth');
   const h=document.getElementById('appHeader'); if(h) h.style.display='none';
   const a=document.getElementById('authScreen'); if(a) a.style.display='flex';
   const u=document.getElementById('loginUsername'); const p=document.getElementById('loginPassword'); if(u) u.value=''; if(p) p.value=''; validateLoginPassword();
-  showResultDialog('Logout berhasil','Session dan refresh token telah dihapus.',true);
+  showResultDialog('Logout berhasil','Session lokal telah dihapus.',true);
 }
 async function startApp(){
+  if(!authCredentials?.username || !authCredentials?.password){ handleAuthExpired(); return; }
   try{
-    await refreshAccessToken();
-    const me=await apiFetch('/auth-me',{},false);
+    const me=await apiFetch('/auth-me',{});
     currentUser=me.user; updateUserBadge();
     document.getElementById('authScreen').style.display='none'; document.getElementById('appHeader').style.display='block';
     await bootstrapData();

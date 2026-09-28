@@ -119,242 +119,84 @@ module.exports = { sql, initDatabase };
 };
 
 __modules["_auth"] = function(module, exports, require) {
+// SIMPLE AUTHENTICATION
+// No user table, no refresh-token table, no Neon dependency for login.
+// Credentials come directly from Vercel Environment Variables.
 const crypto = require('crypto');
-const { sql } = require('./_db');
+const ACCESS_HEADER_SCHEME = 'Basic';
 
-// DATABASE-BACKED AUTHENTICATION
-// Users and refresh sessions are stored in Neon PostgreSQL.
-// The application still uses a single Vercel Serverless Function.
-const ACCESS_TTL_SECONDS = 60 * 60; // 1 hour
-const REFRESH_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
-const COOKIE_NAME = 'terrea_refresh_token';
-const PASSWORD_RULE = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
+function getConfiguredUsername() {
+  return String(process.env.DEFAULT_ADMIN_USERNAME || 'kujang642').trim();
+}
+function getConfiguredPassword() {
+  return String(process.env.DEFAULT_ADMIN_PASSWORD || 'Kujang642Satkat1#');
+}
 function authError(message, status = 401, code = 'AUTH_ERROR') {
   const e = new Error(message);
   e.status = status;
   e.code = code;
   return e;
 }
-
-function validatePassword(password) {
-  return typeof password === 'string' && PASSWORD_RULE.test(password);
-}
-
 function passwordRuleMessage() {
   return 'Password minimal 8 karakter, mengandung 1 huruf uppercase, 1 angka, dan 1 karakter special.';
 }
-
-function getConfiguredUsername() {
-  return String(process.env.DEFAULT_ADMIN_USERNAME || 'kujang642').trim();
+function validatePassword(password) {
+  return typeof password === 'string' && /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password);
 }
-
-function getConfiguredPassword() {
-  return String(process.env.DEFAULT_ADMIN_PASSWORD || 'Kujang642Satkat1#');
+function safeEqual(a, b) {
+  const aa = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
 }
-
-function getJwtSecret() {
-  const secret = String(process.env.AUTH_JWT_SECRET || '').trim();
-  if (secret.length < 32) {
-    throw authError('AUTH_JWT_SECRET belum dikonfigurasi atau kurang dari 32 karakter.', 500, 'AUTH_SECRET_MISSING');
-  }
-  return secret;
-}
-
-function base64url(input) {
-  return Buffer.from(input).toString('base64url');
-}
-
-function signToken(payload) {
-  const header = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body = base64url(JSON.stringify(payload));
-  const data = `${header}.${body}`;
-  const signature = crypto.createHmac('sha256', getJwtSecret()).update(data).digest('base64url');
-  return `${data}.${signature}`;
-}
-
-function verifyToken(token, expectedType) {
+function readBasicCredentials(req) {
+  const header = String(req.headers?.authorization || '');
+  if (!header.startsWith(ACCESS_HEADER_SCHEME + ' ')) return null;
   try {
-    if (typeof token !== 'string' || !token) return null;
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const [header, body, signature] = parts;
-    const expected = crypto.createHmac('sha256', getJwtSecret()).update(`${header}.${body}`).digest('base64url');
-    if (signature.length !== expected.length) return null;
-    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
-    const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
-    const now = Math.floor(Date.now() / 1000);
-    if (!payload.exp || payload.exp <= now) return null;
-    if (expectedType && payload.type !== expectedType) return null;
-    if (!payload.sub || !payload.username) return null;
-    return payload;
+    const decoded = Buffer.from(header.slice(ACCESS_HEADER_SCHEME.length + 1).trim(), 'base64').toString('utf8');
+    const idx = decoded.indexOf(':');
+    if (idx < 0) return null;
+    return { username: decoded.slice(0, idx), password: decoded.slice(idx + 1) };
   } catch (_) {
     return null;
   }
 }
-
-function createAccessToken(user) {
-  const now = Math.floor(Date.now() / 1000);
-  return signToken({
-    type: 'access',
-    sub: String(user.id),
-    username: user.username,
-    iat: now,
-    exp: now + ACCESS_TTL_SECONDS
-  });
+function credentialsAreValid(username, password) {
+  return safeEqual(username, getConfiguredUsername()) && safeEqual(password, getConfiguredPassword());
 }
-
-function createRefreshToken() {
-  return crypto.randomBytes(48).toString('base64url');
-}
-
-function hashRefreshToken(token) {
-  return crypto.createHash('sha256').update(String(token)).digest('hex');
-}
-
-function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
-  const derived = crypto.scryptSync(String(password), salt, 64);
-  return `scrypt$${salt}$${derived.toString('hex')}`;
-}
-
-function verifyPassword(password, stored) {
-  try {
-    const parts = String(stored || '').split('$');
-    if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
-    const [, salt, hashHex] = parts;
-    const actual = crypto.scryptSync(String(password), salt, hashHex.length / 2);
-    const expected = Buffer.from(hashHex, 'hex');
-    return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
-  } catch (_) {
-    return false;
+function authenticateRequest(req) {
+  const creds = readBasicCredentials(req);
+  if (!creds || !credentialsAreValid(creds.username, creds.password)) {
+    throw authError('Username atau password salah.', 401, 'INVALID_CREDENTIALS');
   }
+  return { id: 1, username: getConfiguredUsername() };
 }
-
-function parseCookies(req) {
-  const raw = req.headers?.cookie || '';
-  const out = {};
-  raw.split(';').forEach(part => {
-    const i = part.indexOf('=');
-    if (i < 0) return;
-    const k = part.slice(0, i).trim();
-    const v = part.slice(i + 1).trim();
-    if (k) {
-      try { out[k] = decodeURIComponent(v); } catch (_) { out[k] = v; }
-    }
-  });
-  return out;
-}
-
-function setRefreshCookie(res, token) {
-  res.setHeader('Set-Cookie', `${COOKIE_NAME}=${encodeURIComponent(token)}; Max-Age=${REFRESH_TTL_SECONDS}; Path=/; HttpOnly; Secure; SameSite=Lax`);
-}
-
-function clearRefreshCookie(res) {
-  res.setHeader('Set-Cookie', `${COOKIE_NAME}=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax`);
-}
-
-async function ensureAuthDatabase() {
-  await sql`CREATE TABLE IF NOT EXISTS "user" (
-    id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`;
-
-  await sql`CREATE TABLE IF NOT EXISTS user_sessions (
-    id TEXT PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-    token_hash TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    expires_at TIMESTAMPTZ NOT NULL,
-    revoked_at TIMESTAMPTZ NULL,
-    last_used_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  )`;
-
-  await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON user_sessions(user_id)`;
-  await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at)`;
-}
-
-async function ensureDefaultUser() {
-  const username = getConfiguredUsername();
-  const configuredPassword = getConfiguredPassword();
-  const rows = await sql`SELECT id, username, password FROM "user" WHERE username=${username} LIMIT 1`;
-  if (rows.length) return rows[0];
-
-  const passwordHash = hashPassword(configuredPassword);
-  const inserted = await sql`INSERT INTO "user" (username, password) VALUES (${username}, ${passwordHash}) RETURNING id, username, password`;
-  return inserted[0];
-}
-
-async function findUserByUsername(username) {
-  const rows = await sql`SELECT id, username, password FROM "user" WHERE username=${username} LIMIT 1`;
-  return rows[0] || null;
-}
-
-async function issueSession(user) {
-  const accessToken = createAccessToken(user);
-  const refreshToken = createRefreshToken();
-  const tokenHash = hashRefreshToken(refreshToken);
-  const sessionId = crypto.randomBytes(18).toString('base64url');
-  const expiresAt = new Date(Date.now() + REFRESH_TTL_SECONDS * 1000).toISOString();
-
-  await sql`INSERT INTO user_sessions(id,user_id,token_hash,created_at,expires_at,last_used_at)
-    VALUES(${sessionId},${Number(user.id)},${tokenHash},NOW(),${expiresAt},NOW())`;
-
-  return { accessToken, refreshToken, sessionId };
-}
-
-async function rotateRefreshSession(refreshToken) {
-  const tokenHash = hashRefreshToken(refreshToken);
-  const rows = await sql`
-    SELECT s.id AS session_id, s.user_id, s.expires_at, s.revoked_at,
-           u.username
-    FROM user_sessions s
-    JOIN "user" u ON u.id=s.user_id
-    WHERE s.token_hash=${tokenHash}
-    LIMIT 1`;
-
-  if (!rows.length) throw authError('Refresh token tidak ditemukan.', 401, 'REFRESH_SESSION_NOT_FOUND');
-  const session = rows[0];
-  if (session.revoked_at) throw authError('Session sudah dicabut. Silakan login kembali.', 401, 'REFRESH_SESSION_REVOKED');
-  if (new Date(session.expires_at).getTime() <= Date.now()) {
-    await sql`UPDATE user_sessions SET revoked_at=NOW() WHERE id=${session.session_id}`;
-    throw authError('Session sudah berakhir. Silakan login kembali.', 401, 'REFRESH_SESSION_EXPIRED');
-  }
-
-  await sql`UPDATE user_sessions SET revoked_at=NOW(), last_used_at=NOW() WHERE id=${session.session_id}`;
-  const user = { id: session.user_id, username: session.username };
-  const next = await issueSession(user);
-  return { ...next, userId: user.id, username: user.username };
-}
-
-async function revokeRefreshSession(refreshToken) {
-  if (!refreshToken) return;
-  const tokenHash = hashRefreshToken(refreshToken);
-  await sql`UPDATE user_sessions SET revoked_at=NOW(), last_used_at=NOW() WHERE token_hash=${tokenHash} AND revoked_at IS NULL`;
-}
-
 async function requireAuth(req) {
-  const auth = String(req.headers?.authorization || '');
-  const token = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  const payload = verifyToken(token, 'access');
-  if (!payload) throw authError('Sesi login tidak valid atau sudah berakhir.', 401, 'ACCESS_TOKEN_INVALID');
-  return { id: Number(payload.sub), username: payload.username };
+  return authenticateRequest(req);
 }
 
-async function cleanupExpiredSessions() {
-  await sql`DELETE FROM user_sessions WHERE expires_at < NOW() OR revoked_at IS NOT NULL`;
+// Kept as no-op compatibility exports so old bundled route names do not crash.
+async function ensureAuthDatabase() { return true; }
+async function ensureDefaultUser() { return { id: 1, username: getConfiguredUsername() }; }
+async function findUserByUsername(username) {
+  return username === getConfiguredUsername() ? { id: 1, username: getConfiguredUsername() } : null;
 }
+async function issueSession(user) { return { accessToken: '', refreshToken: '', userId: user.id, username: user.username }; }
+async function rotateRefreshSession() { throw authError('Refresh session tidak digunakan pada sistem login sederhana.', 401, 'REFRESH_NOT_USED'); }
+async function revokeRefreshSession() { return true; }
+function parseCookies() { return {}; }
+function setRefreshCookie() {}
+function clearRefreshCookie(res) { res.setHeader('Set-Cookie', 'terrea_refresh_token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax'); }
+function cleanupExpiredSessions() { return Promise.resolve(); }
+function verifyPassword(password, stored) { return safeEqual(password, stored); }
 
 module.exports = {
-  COOKIE_NAME, ACCESS_TTL_SECONDS, REFRESH_TTL_SECONDS,
   validatePassword, passwordRuleMessage,
   parseCookies, setRefreshCookie, clearRefreshCookie,
   ensureAuthDatabase, ensureDefaultUser, findUserByUsername,
   issueSession, rotateRefreshSession, revokeRefreshSession,
   requireAuth, cleanupExpiredSessions,
-  getConfiguredUsername, getConfiguredPassword, verifyPassword
+  getConfiguredUsername, getConfiguredPassword, verifyPassword,
+  authenticateRequest, readBasicCredentials, credentialsAreValid
 };
 };
 
@@ -363,7 +205,6 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { sql, initDatabase } = require('./_db');
-const { ensureAuthDatabase } = require('./_auth');
 
 const MASTER_FILE = path.join(process.cwd(), 'data', 'master.json');
 let initialized = false;
@@ -465,7 +306,6 @@ async function ensureInitialized() {
   if (!initPromise) {
     initPromise = (async () => {
       await initDatabase();
-      await ensureAuthDatabase();
       await seedMasterIfEmpty();
       initialized = true;
     })().catch(e => {
@@ -643,125 +483,56 @@ module.exports = {
 };
 
 __modules["auth-login"] = function(module, exports, require) {
-const { issueSession, setRefreshCookie, ensureAuthDatabase, ensureDefaultUser, findUserByUsername, verifyPassword } = require('./_auth');
-function validatePassword(password) { return typeof password === 'string' && /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password); }
-function passwordRuleMessage() { return 'Password minimal 8 karakter, mengandung 1 huruf uppercase, 1 angka, dan 1 karakter special.'; }
-
+const { getConfiguredUsername, getConfiguredPassword, passwordRuleMessage, validatePassword, credentialsAreValid } = require('./_auth');
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  cors(res);
   if (req.method === 'OPTIONS') return sendJson(res, 204, {});
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
-
   try {
     const b = await body(req);
     const username = String(b.username || '').trim();
     const password = typeof b.password === 'string' ? b.password : '';
     if (!username || !password) return sendJson(res, 400, { error: 'Username dan password wajib diisi.', code: 'MISSING_CREDENTIALS' });
     if (!validatePassword(password)) return sendJson(res, 400, { error: passwordRuleMessage(), code: 'PASSWORD_FORMAT_INVALID' });
-
-    // Authentication is stored in Neon. On a fresh database, create the auth
-    // tables and seed the configured administrator account exactly once.
-    await ensureAuthDatabase();
-    const bootstrapUsername = String(process.env.DEFAULT_ADMIN_USERNAME || 'kujang642').trim();
-    const bootstrapPassword = String(process.env.DEFAULT_ADMIN_PASSWORD || 'Kujang642Satkat1#');
-    let user = await findUserByUsername(username);
-
-    // Bootstrap/recovery for the configured administrator. This is important
-    // for databases created by older TERREA versions where the user row may
-    // already exist with an old/incompatible password hash. The configured
-    // environment credentials are authoritative for this administrator.
-    if (username === bootstrapUsername && password === bootstrapPassword) {
-      if (!user) {
-        user = await ensureDefaultUser();
-      } else if (!verifyPassword(password, user.password)) {
-        const crypto = require('crypto');
-        const salt = crypto.randomBytes(16).toString('hex');
-        const derived = crypto.scryptSync(password, salt, 64);
-        const passwordHash = `scrypt$${salt}$${derived.toString('hex')}`;
-        const repaired = await sql`UPDATE "user" SET password=${passwordHash}, "updatedAt"=NOW() WHERE id=${Number(user.id)} RETURNING id, username, password`;
-        if (repaired.length) user = repaired[0];
-      }
-    }
-
-    if (!user || !verifyPassword(password, user.password)) {
-      return sendJson(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
-    }
-
-    const session = await issueSession({ id: user.id, username: user.username });
-    setRefreshCookie(res, session.refreshToken);
-    return sendJson(res, 200, {
-      ok: true,
-      accessToken: session.accessToken,
-      user: { id: user.id, username: user.username }
-    });
+    if (!credentialsAreValid(username, password)) return sendJson(res, 401, { error: 'Username atau password salah.', code: 'INVALID_CREDENTIALS' });
+    return sendJson(res, 200, { ok: true, user: { id: 1, username: getConfiguredUsername() } });
   } catch (e) {
     console.error('auth login error:', e);
-    return sendJson(res, e.status || 500, { error: e.message || 'Login gagal.', code: e.code || 'AUTH_LOGIN_ERROR' });
+    return sendJson(res, 500, { error: e.message || 'Login gagal.', code: 'AUTH_LOGIN_ERROR' });
   }
 };
 };
 
 __modules["auth-refresh"] = function(module, exports, require) {
-
-const { parseCookies, rotateRefreshSession, setRefreshCookie, clearRefreshCookie } = require('./_auth');
-module.exports = async (req,res)=>{
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if(req.method==='OPTIONS') return sendJson(res,204,{});
-  if(req.method!=='POST') return sendJson(res,405,{error:'Method not allowed'});
-  try{
-    const token=parseCookies(req).terrea_refresh_token;
-    if(!token){ clearRefreshCookie(res); return sendJson(res,401,{error:'Belum login.',code:'NO_REFRESH_TOKEN'}); }
-    const session=await rotateRefreshSession(token);
-    setRefreshCookie(res,session.refreshToken);
-    return sendJson(res,200,{ok:true,accessToken:session.accessToken,user:{id:session.userId,username:session.username}});
-  }catch(e){
-    console.error('auth refresh error:', e);
-    clearRefreshCookie(res);
-    return sendJson(res,e.status||500,{error:e.message||'Session tidak valid.',code:e.code||'AUTH_REFRESH_ERROR'});
-  }
+module.exports = async (req, res) => {
+  cors(res);
+  if (req.method === 'OPTIONS') return sendJson(res, 204, {});
+  return sendJson(res, 410, { error: 'Refresh token tidak digunakan. Silakan login kembali.', code: 'REFRESH_NOT_USED' });
 };
 };
 
 __modules["auth-logout"] = function(module, exports, require) {
-
-const { parseCookies, clearRefreshCookie, revokeRefreshSession } = require('./_auth');
-module.exports=async(req,res)=>{
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if(req.method==='OPTIONS')return sendJson(res,204,{});
-  if(req.method!=='POST')return sendJson(res,405,{error:'Method not allowed'});
-  try {
-    await revokeRefreshSession(parseCookies(req).terrea_refresh_token);
-  } catch (e) {
-    console.error('auth logout error:', e);
-  }
-  clearRefreshCookie(res);
-  return sendJson(res,200,{ok:true});
+module.exports = async (req, res) => {
+  cors(res);
+  if (req.method === 'OPTIONS') return sendJson(res, 204, {});
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+  return sendJson(res, 200, { ok: true });
 };
 };
 
 __modules["auth-me"] = function(module, exports, require) {
-
 const { requireAuth } = require('./_auth');
-module.exports=async(req,res)=>{
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if(req.method==='OPTIONS') return sendJson(res,204,{});
-  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
-  try{
-    const user=await requireAuth(req);
-    return sendJson(res,200,{ok:true,user});
-  }catch(e){
-    return sendJson(res,e.status||401,{error:e.message||'Unauthorized',code:'AUTH_ME_ERROR'});
+module.exports = async (req, res) => {
+  cors(res);
+  if (req.method === 'OPTIONS') return sendJson(res, 204, {});
+  if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+  try {
+    const user = await requireAuth(req);
+    return sendJson(res, 200, { ok: true, user });
+  } catch (e) {
+    return sendJson(res, e.status || 401, { error: e.message || 'Unauthorized', code: e.code || 'AUTH_ME_ERROR' });
   }
 };
-
 };
 
 __modules["health"] = function(module, exports, require) {

@@ -1,67 +1,21 @@
-# TERREA Hailing Log — Vercel Single Function
+# TERREA Hailing Log
 
-Versi ini menggunakan **Neon PostgreSQL untuk seluruh data aplikasi, termasuk authentication**.
+## Login sederhana
+Login tidak lagi memakai tabel `user`, `user_sessions`, JWT, atau refresh token.
+Credential dibaca langsung dari Vercel Environment Variables.
 
-## Arsitektur
-
-- Tepat 1 Serverless Function: `api/index.js`
-- Database: Neon PostgreSQL via `@neondatabase/serverless`
-- Hailing records, vessels, operations: Neon
-- User login dan refresh sessions: Neon (`user`, `user_sessions`)
-- Password: scrypt hash, tidak disimpan plaintext
-- Access token: JWT HS256
-- Refresh token: random opaque token, disimpan hanya sebagai SHA-256 hash di Neon dan dikirim melalui HttpOnly Secure cookie
-
-## Fresh database
-
-Tidak perlu membuat tabel auth secara manual. Saat login pertama kali, API akan:
-
-1. membuat tabel `user` dan `user_sessions` jika belum ada;
-2. membuat akun administrator dari `DEFAULT_ADMIN_USERNAME` / `DEFAULT_ADMIN_PASSWORD` jika akun tersebut belum ada;
-3. memverifikasi password terhadap hash di Neon;
-4. membuat session di `user_sessions`.
-
-Endpoint data akan membuat tabel `operations`, `hailing_records`, dan `vessels` ketika pertama kali digunakan.
-
-## Environment Variables
-
-Production Vercel:
-
-- `DATABASE_URL` — Neon connection string
-- `AUTH_JWT_SECRET` — minimal 32 karakter
-- `DEFAULT_ADMIN_USERNAME` — default `kujang642`
-- `DEFAULT_ADMIN_PASSWORD` — default `Kujang642Satkat1#`
-
-## Login default
-
-Jika environment variables admin tidak diubah:
-
+Default:
 - Username: `kujang642`
 - Password: `Kujang642Satkat1#`
 
-## Vercel
+Set these variables in Vercel:
+- `DATABASE_URL`
+- `DEFAULT_ADMIN_USERNAME`
+- `DEFAULT_ADMIN_PASSWORD`
 
-`vercel.json` mengarahkan semua `/api/*` ke `api/index.js`, sehingga deployment tetap hanya memiliki satu Serverless Function.
+Set `DEFAULT_ADMIN_PASSWORD` sesuai password yang ingin digunakan. Password minimal 8 karakter, 1 huruf uppercase, 1 angka, dan 1 karakter special.
 
-## v7 deployment fix
+API terlindungi menggunakan HTTP Basic Authorization melalui HTTPS. Credential hanya disimpan selama tab/browser session dan dihapus saat logout.
 
-The Neon driver is imported with a top-level static `require()` in `api/index.js` so Vercel's Node bundler can detect and include `@neondatabase/serverless`. The dependency is pinned to 1.1.0 instead of `latest`.
-
-
-## v8.0.0 LOGIN FIX
-
-- Login backend uses POST `/api/auth-login`. Opening this URL directly in a browser uses GET and intentionally returns `405 Method not allowed`; this is normal and does not indicate a login failure.
-- The configured administrator credentials are authoritative. If an older TERREA database already contains `kujang642` with an old/incompatible password hash, a successful login with the configured bootstrap password repairs the hash automatically.
-- Default bootstrap credentials when environment variables are omitted:
-  - Username: `kujang642`
-  - Password: `Kujang642Satkat1#`
-- If `DEFAULT_ADMIN_USERNAME` or `DEFAULT_ADMIN_PASSWORD` is present in Vercel, those values override the defaults.
-- Frontend login uses POST, same-origin credentials, stores only the short-lived access token in sessionStorage, and relies on the HttpOnly refresh cookie for refresh.
-
-
-## v9 deployment hardening
-- Node.js 24.x is selected through package.json; no runtime field is specified in vercel.json.
-- No Vercel CLI dependency is installed as an application dependency.
-- Production dependency is @neondatabase/serverless 1.1.0.
-- API remains one function at api/index.js.
-- /api/* is rewritten to api/index.js with __route.
+## Deploy
+Upload isi project ke GitHub lalu deploy ke Vercel. Tidak ada `now.json` dan tidak ada runtime legacy. Node.js 24.x ditentukan melalui `package.json`.
