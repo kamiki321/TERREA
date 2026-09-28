@@ -57,3 +57,11 @@ The Neon driver is imported with a top-level static `require()` in `api/index.js
   - Password: `Kujang642Satkat1#`
 - If `DEFAULT_ADMIN_USERNAME` or `DEFAULT_ADMIN_PASSWORD` is present in Vercel, those values override the defaults.
 - Frontend login uses POST, same-origin credentials, stores only the short-lived access token in sessionStorage, and relies on the HttpOnly refresh cookie for refresh.
+
+
+## v9 deployment hardening
+- Node runtime pinned to 20.x.
+- No Vercel CLI dependency is installed as an application dependency.
+- Production dependency is @neondatabase/serverless 1.1.0.
+- API remains one function at api/index.js.
+- /api/* is rewritten to api/index.js with __route.
