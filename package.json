@@ -1,13 +1,10 @@
 {
   "name": "terrea-hailing-vercel-single-function",
-  "version": "9.0.0",
+  "version": "11.0.0",
   "private": true,
   "description": "Terrea Hailing Log - Vercel single function + Neon PostgreSQL + simple environment-based authentication",
   "engines": {
-    "node": "20.x"
-  },
-  "scripts": {
-    "dev": "vercel dev"
+    "node": "24.x"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.1.0"
